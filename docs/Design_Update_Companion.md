@@ -287,7 +287,7 @@ The fastest path is to prove the concept in a browser first. C# and JUCE remain 
 **Date:** 2026-05-16  
 **Status:** Approved  
 **Related Tickets:** T0003, T0003A, future implementation tickets  
-**Affected Areas:** `.codex/skills`, AGENTS.md, workflow docs
+**Affected Areas:** `.codex/skills`, `AGENTS.md`, workflow docs
 
 ### Decision
 
@@ -300,6 +300,7 @@ gamecue-audio-playback
 gamecue-save-load
 gamecue-manual-verification
 ```
+
 Although these files were merged alongside T0003 rather than through a dedicated skills ticket, they align with the already-planned GameCue workflow and are useful enough to retain.
 
 ### Reason
@@ -307,9 +308,9 @@ Although these files were merged alongside T0003 rather than through a dedicated
 The skills reinforce project rules that are already documented elsewhere:
 
 - Implement one ticket at a time.
-- Keep src/core engine-agnostic.
-- Keep Tone.js isolated under src/playback/tone.
-- Keep .gamecue.json as the source of truth.
+- Keep `src/core` engine-agnostic.
+- Keep Tone.js isolated under `src/playback/tone`.
+- Keep `.gamecue.json` as the source of truth.
 - Require completion reports and manual verification.
 - Avoid full DAW scope creep.
 
@@ -317,25 +318,25 @@ Keeping them avoids unnecessary revert churn and gives Codex reusable guardrails
 
 ### Impact
 
-- .codex/skills/ is now an intentional part of the repo.
+- `.codex/skills/` is now an intentional part of the repo.
 - Future Codex prompts may reference these skills when appropriate.
-- AGENTS.md mentions the available starter skills.
-- docs/Repo_Current_State.md lists .codex/skills/ as part of the current repo structure.
+- `AGENTS.md` mentions the available starter skills.
+- `docs/Repo_Current_State.md` lists `.codex/skills/` as part of the current repo structure.
 - New skills should be added through explicit docs/workflow tickets going forward.
 
 ### Non-Goals
 
-- This does not mean skills override AGENTS.md, docs/Tickets.md, or the active ticket prompt.
+- This does not mean skills override `AGENTS.md`, `docs/Tickets.md`, or the active ticket prompt.
 - This does not authorize Codex to implement multiple tickets at once.
 - This does not add runtime app behavior.
 - This does not add Tone.js, generation, playback, save/load, export, or AI features.
 
 ### Follow-Up
 
- - [x] Keep starter skills in repo.
- - [x] Update AGENTS.md to mention available skills.
- - [x] Update docs/Repo_Current_State.md to include .codex/skills/.
- - [x] Update docs/GameCue_Starter_Skills_Reference.md to mark current created skills.
+- [x] Keep starter skills in repo.
+- [x] Update `AGENTS.md` to mention available skills.
+- [x] Update `docs/Repo_Current_State.md` to include `.codex/skills/`.
+- [x] Update `docs/GameCue_Starter_Skills_Reference.md` to mark current created skills.
 
 ---
 
