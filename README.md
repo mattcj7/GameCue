@@ -1,164 +1,38 @@
 # GameCue
 
-GameCue is a lightweight tool for generating loopable music cues for games.
+GameCue is a lightweight tool for generating loopable game music cues for games.
 
-The goal is to help create quick, editable game music ideas such as:
+## Current Status
 
-- Investigation ambience
-- Suspense loops
-- Chase/action loops
-- Menu themes
-- Discovery stings
-- Emotional scene cues
-- Dark ambient background loops
+`T0001 — Project Skeleton` is implemented.
 
-GameCue is not intended to be a full DAW. It is a focused game-cue generator and editor.
+The app currently provides a Vite + React + TypeScript shell with placeholder sections for:
 
----
+- Cue Controls
+- Track List
+- Transport
+- Save / Load
 
-# Current Status
+No playback, music generation, save/load behavior, export flow, or project schema is implemented yet.
 
-**Status:** Planning / project skeleton stage
+## MVP Direction
 
-The first implementation target is:
+GameCue starts with:
 
-```text
-T0001 — Project Skeleton
-```
+- React
+- TypeScript
+- Vite
+- Engine-agnostic project data
 
-The initial build will be a Vite + React + TypeScript app shell with placeholder UI sections.
+Tone.js playback is intentionally deferred to later playback tickets. The long-term architecture keeps `.gamecue.json` project data as the source of truth.
 
-No music generation, playback, save/load, or export features should exist in T0001.
-
----
-
-# MVP Direction
-
-GameCue will start as:
-
-```text
-React + TypeScript + Vite
-Tone.js playback later
-Engine-agnostic .gamecue.json project files
-Rule-based music generation
-```
-
-The core design rule:
-
-```text
-.gamecue.json is the source of truth.
-```
-
-Tone.js should be treated as a playback adapter only.
-
----
-
-# Architecture Rules
-
-## Core Must Stay Engine-Agnostic
-
-Files under `src/core/` should not import Tone.js or browser audio APIs.
-
-Core areas:
-
-```text
-src/core/model/
-src/core/theory/
-src/core/templates/
-src/core/generation/
-src/core/serialization/
-```
-
-Core should contain:
-
-- Project model types
-- Music theory helpers
-- Cue templates
-- Generation logic
-- Serialization and validation
-
-Core should not contain:
-
-- Tone.js objects
-- Web Audio API objects
-- React components
-- DOM references
-- UI state
-- Runtime audio objects
-
-## Tone.js Isolation
-
-Tone.js code should live only under:
-
-```text
-src/playback/tone/
-```
-
-Tone.js should not be added until the playback tickets.
-
----
-
-# Planned Repo Structure
-
-```text
-gamecue/
-  AGENTS.md
-  README.md
-  package.json
-  index.html
-  vite.config.ts
-  tsconfig.json
-
-  docs/
-    GameCue_Full_Design_Document.md
-    GameCue_MVP_Technical_Design.md
-    Tickets.md
-    Codex_Prompt_Playbook.md
-    GameCue_Starter_Skills_Reference.md
-    Manual_Verification_Guide.md
-    Repo_Current_State.md
-    Design_Update_Companion.md
-    Codex_Ticket_Handoff_Template.md
-    Known_Issues_And_Followups.md
-    Prompt_Context_Pack.md
-    GameCue_Project_Skeleton_Layout.md
-
-  src/
-    app/
-      App.tsx
-      main.tsx
-      styles.css
-
-    core/
-      model/
-      theory/
-      templates/
-      generation/
-      serialization/
-
-    playback/
-      tone/
-
-    ui/
-      controls/
-      tracks/
-      project/
-      shared/
-```
-
----
-
-# Setup
-
-Install dependencies:
+## Setup
 
 ```bash
 npm install
 ```
 
----
-
-# Run Development Server
+## Run Development Server
 
 ```bash
 npm run dev
@@ -166,151 +40,44 @@ npm run dev
 
 Open the local URL shown by Vite.
 
----
-
-# Build
+## Build
 
 ```bash
 npm run build
 ```
 
-The build should pass before moving to the next ticket.
-
----
-
-# Preview Production Build
+## Preview Production Build
 
 ```bash
 npm run preview
 ```
 
----
+## Current Non-Goals
 
-# Testing
-
-Automated tests are not required in T0001 unless a later ticket adds a test framework.
-
-When tests are added, this README should be updated with the test command.
-
----
-
-# Ticket Workflow
-
-GameCue should be built one small ticket at a time.
-
-Recommended loop:
-
-```text
-Plan in ChatGPT
-  ↓
-Create/update docs
-  ↓
-Give Codex one ticket
-  ↓
-Run build/tests
-  ↓
-Manual verification
-  ↓
-Update repo state/docs
-  ↓
-Move to next ticket
-```
-
-Do not ask Codex to build multiple major features at once.
-
----
-
-# Current First Ticket
-
-```text
-T0001 — Project Skeleton
-```
-
-T0001 should create:
-
-- Vite + React + TypeScript project
-- Basic app shell
-- Placeholder UI sections
-- Initial folder structure
-- README
-- `.gitignore`
-- TypeScript strict mode
-- Working `npm run dev`
-- Working `npm run build`
-
-T0001 should not create:
+T0001 does not implement:
 
 - Tone.js playback
+- Audio scheduling
 - Music generation
-- Project schema
-- Save/load
-- MIDI/WAV export
-- AI assistant
+- Project model/schema types
+- Save/load behavior
+- MIDI or WAV export
+- AI assistant features
 - Editing tools
 
----
+## Manual Verification for T0001
 
-# Manual Verification for T0001
-
-After T0001:
-
-```text
-1. Run npm install.
-2. Run npm run dev.
+1. Run `npm install`.
+2. Run `npm run dev`.
 3. Open the local Vite URL.
-4. Confirm GameCue heading appears.
-5. Confirm subtitle appears.
-6. Confirm placeholder sections appear:
-   - Cue Controls
-   - Track List
-   - Transport
-   - Save / Load
-7. Confirm no fatal browser console errors.
-8. Stop dev server.
-9. Run npm run build.
-10. Confirm build succeeds.
-```
-
----
-
-# Important Docs
-
-Read these before implementation work:
-
-```text
-AGENTS.md
-docs/GameCue_Full_Design_Document.md
-docs/GameCue_MVP_Technical_Design.md
-docs/Tickets.md
-docs/Codex_Prompt_Playbook.md
-docs/Manual_Verification_Guide.md
-docs/Repo_Current_State.md
-```
-
----
-
-# Future Roadmap
-
-High-level phases:
-
-```text
-Phase 1 — App Skeleton
-Phase 2 — Music Brain
-Phase 3 — Playback
-Phase 4 — Save / Load
-Phase 5 — Regeneration / Variations
-Phase 6 — Game Export
-Phase 7 — Editing Tools
-Phase 8 — Polish / Better Sounds
-Phase 9 — AI Assistant Later
-```
-
-Tone.js begins during playback work, not during the skeleton ticket.
-
----
-
-# License
-
-License has not been selected yet.
-
-Add a license before publishing or distributing the project.
+4. Confirm the `GameCue` heading appears.
+5. Confirm `Generate loopable game music cues` appears.
+6. Confirm the placeholder sections appear:
+   - `Cue Controls`
+   - `Track List`
+   - `Transport`
+   - `Save / Load`
+7. Confirm there are no fatal browser console errors.
+8. Stop the dev server.
+9. Run `npm run build`.
+10. Confirm the build succeeds.

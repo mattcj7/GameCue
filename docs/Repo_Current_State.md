@@ -31,12 +31,12 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: Planning complete / implementation not started
-Last completed ticket: T0000E — AGENTS.md
-Current ticket: Not started
-Next recommended ticket: T0001 — Project Skeleton
+Project status: Initial app skeleton implemented
+Last completed ticket: T0001 — Project Skeleton
+Current ticket: None
+Next recommended ticket: T0002 — Core Project Model
 Current branch: Not created yet
-Repo initialized: Unknown
+Repo initialized: Yes
 ```
 
 ## 2.2 Current Planning Docs
@@ -61,9 +61,9 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Not started
-Vite project created: No
-React app created: No
+Source code status: T0001 skeleton exists
+Vite project created: Yes
+React app created: Yes
 Tone.js installed: No
 Core model created: No
 Generation system created: No
@@ -82,10 +82,10 @@ Update this section once implementation begins.
 ## 3.1 Runtime Versions
 
 ```text
-Node version: Unknown
-npm version: Unknown
-OS: Unknown
-Editor: Unknown
+Node version: 24.14.0
+npm version: 11.6.4
+OS: Windows
+Editor: Codex desktop
 ```
 
 Suggested commands:
@@ -110,7 +110,9 @@ Current expected scripts after T0001:
 Actual scripts:
 
 ```text
-Not created yet.
+dev: vite
+build: tsc -b && vite build
+preview: vite preview
 ```
 
 ## 3.3 Dependencies
@@ -134,7 +136,14 @@ tone
 Actual dependencies:
 
 ```text
-Not created yet.
+react
+react-dom
+vite
+typescript
+@vitejs/plugin-react
+@types/node
+@types/react
+@types/react-dom
 ```
 
 ---
@@ -187,7 +196,35 @@ gamecue/
 Update after T0001.
 
 ```text
-Not created yet.
+gamecue/
+  AGENTS.md
+  README.md
+  index.html
+  package.json
+  package-lock.json
+  tsconfig.json
+  tsconfig.app.json
+  tsconfig.node.json
+  vite.config.ts
+  docs/
+  src/
+    app/
+      App.tsx
+      main.tsx
+      styles.css
+    core/
+      model/
+      theory/
+      templates/
+      generation/
+      serialization/
+    playback/
+      tone/
+    ui/
+      controls/
+      tracks/
+      project/
+      shared/
 ```
 
 ---
@@ -201,6 +238,7 @@ Not created yet.
 | T0000C — Tickets.md | Drafted | N/A | N/A | Created in planning chat |
 | T0000D — Codex Prompt Playbook | Drafted | N/A | N/A | Created in planning chat |
 | T0000E — AGENTS.md | Drafted | N/A | N/A | Created in planning chat |
+| T0001 — Project Skeleton | Implemented | Not created | N/A | App shell, folder skeleton, strict TypeScript config, README update |
 
 ---
 
@@ -209,13 +247,13 @@ Not created yet.
 ```text
 Ticket: None
 Branch: None
-Status: Not started
+Status: Complete for T0001
 ```
 
 ## Active Ticket Notes
 
 ```text
-N/A
+T0001 was completed without introducing Tone.js, generation logic, save/load logic, or project schema types.
 ```
 
 ---
@@ -227,13 +265,15 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-None yet.
+- npm install
+- npm run build
+- dev server startup verification on localhost
 ```
 
 ## 7.2 Last Build Result
 
 ```text
-Not run.
+Pass
 ```
 
 ## 7.3 Last Test Result
@@ -245,7 +285,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Not performed.
+Pass for placeholder shell and command verification.
 ```
 
 ---
@@ -255,7 +295,7 @@ Not performed.
 Current known issues:
 
 ```text
-No implementation issues yet.
+No functional implementation issues identified in T0001.
 ```
 
 See:
@@ -273,17 +313,17 @@ for detailed tracking once implementation begins.
 ## 9.1 Core Boundary
 
 ```text
-src/core exists: No
+src/core exists: Yes
 Tone.js imported in src/core: No
-Status: Not applicable yet
+Status: Clean
 ```
 
 ## 9.2 Playback Boundary
 
 ```text
-src/playback exists: No
+src/playback exists: Yes
 Tone.js installed: No
-Status: Not applicable yet
+Status: Folder skeleton only
 ```
 
 ## 9.3 Project File Format
@@ -298,7 +338,7 @@ Status: Designed, not implemented
 # 10. Next Recommended Action
 
 ```text
-Start T0001 — Project Skeleton.
+Start T0002 — Core Project Model.
 ```
 
 Recommended branch:
