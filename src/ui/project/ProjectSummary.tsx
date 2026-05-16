@@ -1,23 +1,36 @@
-const summaryItems = [
-  {
-    label: "Project",
-    value: "No cue generated yet",
-  },
-  {
-    label: "Planned Tracks",
-    value: "Percussion, Bass, Chords, Melody",
-  },
-  {
-    label: "Schema",
-    value: ".gamecue.json source of truth",
-  },
-  {
-    label: "Next Step",
-    value: "Wire cue settings in T0004",
-  },
-] as const;
+import type { CueSettings } from "../../core/model";
 
-export function ProjectSummary() {
+export interface ProjectSummaryProps {
+  settings: CueSettings;
+}
+
+function formatOptionLabel(value: string): string {
+  return value
+    .split("_")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+export function ProjectSummary({ settings }: ProjectSummaryProps) {
+  const summaryItems = [
+    {
+      label: "Cue",
+      value: `${formatOptionLabel(settings.type)} / ${formatOptionLabel(settings.mood)}`,
+    },
+    {
+      label: "Tempo",
+      value: `${settings.bpm} BPM / Intensity ${settings.intensity}`,
+    },
+    {
+      label: "Harmony",
+      value: `${settings.key} ${formatOptionLabel(settings.mode)}`,
+    },
+    {
+      label: "Structure",
+      value: `${settings.bars} bars / ${settings.timeSignature}`,
+    },
+  ] as const;
+
   return (
     <section className="summary-grid" aria-label="Project summary">
       {summaryItems.map((item) => (
