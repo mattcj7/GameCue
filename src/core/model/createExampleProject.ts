@@ -1,0 +1,173 @@
+import type { GameCueProject } from "./GameCueProject";
+
+export function createExampleProject(): GameCueProject {
+  return {
+    schemaVersion: "0.1",
+    projectId: "project_dark_alley_investigation",
+    title: "Dark Alley Investigation",
+    createdAt: "2026-05-16T00:00:00.000Z",
+    updatedAt: "2026-05-16T00:00:00.000Z",
+    cue: {
+      type: "investigation",
+      mood: "dark",
+      intensity: 3,
+      bpm: 86,
+      key: "D",
+      mode: "minor",
+      bars: 16,
+      timeSignature: "4/4",
+    },
+    sections: [
+      {
+        id: "section_loop_a",
+        name: "Loop A",
+        startBar: 0,
+        bars: 16,
+        intensity: 3,
+      },
+    ],
+    tracks: [
+      {
+        id: "track_drums",
+        name: "Percussion",
+        type: "drums",
+        instrument: "minimal_electronic_kit",
+        muted: false,
+        solo: false,
+        locked: false,
+        events: [
+          {
+            id: "event_0001",
+            type: "drum",
+            pitch: "kick",
+            startBeat: 0,
+            durationBeats: 0.25,
+            velocity: 0.85,
+          },
+          {
+            id: "event_0002",
+            type: "drum",
+            pitch: "closed_hat",
+            startBeat: 2,
+            durationBeats: 0.25,
+            velocity: 0.6,
+          },
+        ],
+      },
+      {
+        id: "track_bass",
+        name: "Pulse Bass",
+        type: "bass",
+        instrument: "sub_pulse",
+        muted: false,
+        solo: false,
+        locked: false,
+        events: [
+          {
+            id: "event_0003",
+            type: "note",
+            pitch: "D2",
+            startBeat: 0,
+            durationBeats: 2,
+            velocity: 0.75,
+          },
+          {
+            id: "event_0004",
+            type: "note",
+            pitch: "A1",
+            startBeat: 4,
+            durationBeats: 2,
+            velocity: 0.72,
+          },
+        ],
+      },
+      {
+        id: "track_chords",
+        name: "Dark Pad",
+        type: "chords",
+        instrument: "dark_pad",
+        muted: false,
+        solo: false,
+        locked: false,
+        events: [
+          {
+            id: "event_0005",
+            type: "note",
+            pitch: "D3",
+            startBeat: 0,
+            durationBeats: 4,
+            velocity: 0.55,
+          },
+          {
+            id: "event_0006",
+            type: "note",
+            pitch: "F3",
+            startBeat: 0,
+            durationBeats: 4,
+            velocity: 0.5,
+          },
+          {
+            id: "event_0007",
+            type: "note",
+            pitch: "A3",
+            startBeat: 0,
+            durationBeats: 4,
+            velocity: 0.5,
+          },
+        ],
+      },
+      {
+        id: "track_melody",
+        name: "Sparse Motif",
+        type: "melody",
+        instrument: "soft_pluck",
+        muted: false,
+        solo: false,
+        locked: false,
+        events: [
+          {
+            id: "event_0008",
+            type: "note",
+            pitch: "F4",
+            startBeat: 2,
+            durationBeats: 1,
+            velocity: 0.68,
+          },
+          {
+            id: "event_0009",
+            type: "note",
+            pitch: "G4",
+            startBeat: 6,
+            durationBeats: 1,
+            velocity: 0.7,
+          },
+        ],
+      },
+    ],
+    mix: {
+      masterVolume: 0.85,
+      tracks: [
+        {
+          trackId: "track_drums",
+          volume: 0.9,
+          pan: 0,
+        },
+        {
+          trackId: "track_bass",
+          volume: 0.8,
+          pan: 0,
+        },
+        {
+          trackId: "track_chords",
+          volume: 0.78,
+          pan: -0.1,
+        },
+        {
+          trackId: "track_melody",
+          volume: 0.82,
+          pan: 0.1,
+        },
+      ],
+    },
+  };
+}

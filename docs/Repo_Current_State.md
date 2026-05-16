@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: Initial app skeleton implemented
-Last completed ticket: T0001 — Project Skeleton
+Project status: App skeleton and core project model implemented
+Last completed ticket: T0002 — Core Project Model
 Current ticket: None
-Next recommended ticket: T0002 — Core Project Model
+Next recommended ticket: T0003 — Basic App Layout
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -61,11 +61,11 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0001 skeleton exists
+Source code status: T0002 core project model exists
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
-Core model created: No
+Core model created: Yes
 Generation system created: No
 Playback system created: No
 Save/load created: No
@@ -178,6 +178,15 @@ gamecue/
       styles.css
     core/
       model/
+        CueSettings.ts
+        GameCueProject.ts
+        MixSettings.ts
+        NoteEvent.ts
+        Section.ts
+        Track.ts
+        createExampleProject.ts
+        index.ts
+        projectTypes.ts
       theory/
       templates/
       generation/
@@ -214,6 +223,15 @@ gamecue/
       styles.css
     core/
       model/
+        CueSettings.ts
+        GameCueProject.ts
+        MixSettings.ts
+        NoteEvent.ts
+        Section.ts
+        Track.ts
+        createExampleProject.ts
+        index.ts
+        projectTypes.ts
       theory/
       templates/
       generation/
@@ -239,6 +257,7 @@ gamecue/
 | T0000D — Codex Prompt Playbook | Drafted | N/A | N/A | Created in planning chat |
 | T0000E — AGENTS.md | Drafted | N/A | N/A | Created in planning chat |
 | T0001 — Project Skeleton | Implemented | Not created | N/A | App shell, folder skeleton, strict TypeScript config, README update |
+| T0002 — Core Project Model | Implemented | Not created | N/A | Added serializable project model types, enum-like string unions, and `createExampleProject()` |
 
 ---
 
@@ -247,13 +266,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0001
+Status: Complete for T0002
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0001 was completed without introducing Tone.js, generation logic, save/load logic, or project schema types.
+T0002 was completed without introducing Tone.js, generation logic, playback logic, save/load behavior, export logic, or real UI behavior.
 ```
 
 ---
@@ -265,9 +284,9 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- npm install
-- npm run build
-- dev server startup verification on localhost
+- bundled Node runtime + local TypeScript compiler build
+- bundled Node runtime + local Vite production build
+- model import scan for Tone.js and React in src/core/model
 ```
 
 ## 7.2 Last Build Result
@@ -285,7 +304,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Pass for placeholder shell and command verification.
+Pass for build verification and model inspection.
 ```
 
 ---
@@ -295,7 +314,7 @@ Pass for placeholder shell and command verification.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0001.
+No functional implementation issues identified in T0002.
 ```
 
 See:
@@ -329,8 +348,8 @@ Status: Folder skeleton only
 ## 9.3 Project File Format
 
 ```text
-.gamecue.json schema implemented: No
-Status: Designed, not implemented
+.gamecue.json schema implemented: Partially
+Status: Core TypeScript project model is implemented in src/core/model; serialization and save/load behavior are not implemented yet
 ```
 
 ---
@@ -338,13 +357,13 @@ Status: Designed, not implemented
 # 10. Next Recommended Action
 
 ```text
-Start T0002 — Core Project Model.
+Start T0003 — Basic App Layout.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0001-project-skeleton
+gamecue/t0003-basic-app-layout
 ```
 
 Recommended prompt source:
