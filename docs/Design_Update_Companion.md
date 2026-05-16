@@ -315,6 +315,25 @@ Status:
 Not started.
 ```
 
+## D0007 — Accept Starter Codex Skills as Project Workflow Support
+
+**Date:** 2026-05-16  
+**Status:** Approved  
+**Related Tickets:** T0003, T0003A, future implementation tickets  
+**Affected Areas:** `.codex/skills`, AGENTS.md, workflow docs
+
+### Decision
+
+GameCue will keep the starter Codex skills that were added during the T0003 merge:
+
+```text
+gamecue-ticket-runner
+gamecue-core-generation
+gamecue-audio-playback
+gamecue-save-load
+gamecue-manual-verification
+```
+
 ---
 
 # 6. Open Design Questions
@@ -346,3 +365,4 @@ None yet.
 | Date | Change |
 |---|---|
 | 2026-05-15 | Initial design companion created |
+| 2026-05-16 | Accepted starter `.codex/skills` as intentional project workflow support |

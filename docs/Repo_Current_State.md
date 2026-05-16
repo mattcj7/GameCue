@@ -55,7 +55,10 @@ docs/Design_Update_Companion.md
 docs/Codex_Ticket_Handoff_Template.md
 docs/Known_Issues_And_Followups.md
 docs/Prompt_Context_Pack.md
+docs/Naming_And_Code_Conventions.md
+docs/UI_Style_Guide.md
 AGENTS.md
+.codex/skills/
 ```
 
 ## 2.3 Current Implementation Status
@@ -212,6 +215,18 @@ Update after T0001.
 
 ```text
 gamecue/
+  .codex/
+    skills/
+      gamecue-audio-playback/
+        SKILL.md
+      gamecue-core-generation/
+        SKILL.md
+      gamecue-manual-verification/
+        SKILL.md
+      gamecue-save-load/
+        SKILL.md
+      gamecue-ticket-runner/
+        SKILL.md
   AGENTS.md
   README.md
   index.html
@@ -265,6 +280,7 @@ gamecue/
 | T0001 — Project Skeleton | Implemented | Not created | N/A | App shell, folder skeleton, strict TypeScript config, README update |
 | T0002 — Core Project Model | Implemented | Not created | N/A | Added serializable project model types, enum-like string unions, and `createExampleProject()` |
 | T0003 — Basic App Layout | Implemented | Not created | N/A | Added dark responsive panel layout with placeholder UI components for project summary, cue controls, tracks, transport, and save/load |
+| T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
 ---
 
@@ -356,6 +372,32 @@ Status: Folder skeleton only
 ```text
 .gamecue.json schema implemented: Partially
 Status: Core TypeScript project model is implemented in src/core/model; serialization and save/load behavior are not implemented yet
+```
+
+---
+
+## 9.4 Codex Skills Status
+
+```text
+.codex/skills exists: Yes
+Starter skills documented: Yes
+Status: Accepted as intentional project workflow support
+```
+
+Current skills:
+
+```text
+gamecue-ticket-runner
+gamecue-core-generation
+gamecue-audio-playback
+gamecue-save-load
+gamecue-manual-verification
+```
+
+Notes:
+
+```text
+These skills were added during the T0003 merge. They are accepted as useful starter project tooling rather than reverted. Future skills should be added through explicit docs/workflow tickets.
 ```
 
 ---
