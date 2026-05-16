@@ -1,38 +1,37 @@
-const placeholderSections = [
-  {
-    title: "Cue Controls",
-    description: "Cue generation controls will be added in a later ticket.",
-  },
-  {
-    title: "Track List",
-    description: "Generated tracks will appear here once project generation exists.",
-  },
-  {
-    title: "Transport",
-    description: "Playback controls will be wired after the playback tickets begin.",
-  },
-  {
-    title: "Save / Load",
-    description: "Project file actions will be added after the core project model exists.",
-  },
-] as const;
+import { CueControls } from "../ui/controls/CueControls";
+import { TransportControls } from "../ui/controls/TransportControls";
+import { ProjectSummary } from "../ui/project/ProjectSummary";
+import { SaveLoadPanel } from "../ui/project/SaveLoadPanel";
+import { TrackList } from "../ui/tracks/TrackList";
 
 function App() {
   return (
     <main className="app-shell">
-      <header className="hero-panel">
-        <p className="eyebrow">Project Skeleton</p>
-        <h1>GameCue</h1>
-        <p className="tagline">Generate loopable game music cues</p>
+      <header className="panel app-header">
+        <div className="app-header-copy">
+          <p className="eyebrow">T0003 - Basic App Layout</p>
+          <h1>GameCue</h1>
+          <p className="tagline">Generate loopable game music cues for game projects.</p>
+        </div>
+        <ProjectSummary />
       </header>
 
-      <section className="panel-grid" aria-label="GameCue placeholder sections">
-        {placeholderSections.map((section) => (
-          <section key={section.title} className="panel">
-            <h2>{section.title}</h2>
-            <p>{section.description}</p>
-          </section>
-        ))}
+      <section className="workspace-grid" aria-label="GameCue workspace layout">
+        <aside className="panel side-panel">
+          <CueControls />
+        </aside>
+
+        <section className="panel main-panel">
+          <TrackList />
+        </section>
+      </section>
+
+      <section className="panel transport-panel">
+        <TransportControls />
+      </section>
+
+      <section className="panel project-panel">
+        <SaveLoadPanel />
       </section>
     </main>
   );

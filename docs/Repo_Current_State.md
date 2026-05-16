@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton and core project model implemented
-Last completed ticket: T0002 — Core Project Model
+Project status: App skeleton, core project model, and basic app layout implemented
+Last completed ticket: T0003 — Basic App Layout
 Current ticket: None
-Next recommended ticket: T0003 — Basic App Layout
+Next recommended ticket: T0004 — Cue Controls UI
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -61,11 +61,12 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0002 core project model exists
+Source code status: T0003 basic app layout exists
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
 Core model created: Yes
+Basic app layout created: Yes
 Generation system created: No
 Playback system created: No
 Save/load created: No
@@ -195,8 +196,13 @@ gamecue/
       tone/
     ui/
       controls/
+        CueControls.tsx
+        TransportControls.tsx
       tracks/
+        TrackList.tsx
       project/
+        ProjectSummary.tsx
+        SaveLoadPanel.tsx
       shared/
 ```
 
@@ -258,6 +264,7 @@ gamecue/
 | T0000E — AGENTS.md | Drafted | N/A | N/A | Created in planning chat |
 | T0001 — Project Skeleton | Implemented | Not created | N/A | App shell, folder skeleton, strict TypeScript config, README update |
 | T0002 — Core Project Model | Implemented | Not created | N/A | Added serializable project model types, enum-like string unions, and `createExampleProject()` |
+| T0003 — Basic App Layout | Implemented | Not created | N/A | Added dark responsive panel layout with placeholder UI components for project summary, cue controls, tracks, transport, and save/load |
 
 ---
 
@@ -266,13 +273,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0002
+Status: Complete for T0003
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0002 was completed without introducing Tone.js, generation logic, playback logic, save/load behavior, export logic, or real UI behavior.
+T0003 was completed without introducing Tone.js, generation logic, playback logic, save/load behavior, export logic, or real control behavior.
 ```
 
 ---
@@ -284,9 +291,8 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- bundled Node runtime + local TypeScript compiler build
-- bundled Node runtime + local Vite production build
-- model import scan for Tone.js and React in src/core/model
+- local TypeScript compiler build via node_modules/.bin/tsc.cmd -b
+- local Vite production build via node_modules/.bin/vite.cmd build
 ```
 
 ## 7.2 Last Build Result
@@ -304,7 +310,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Pass for build verification and model inspection.
+Build verification passed. Browser layout verification still recommended for a human pass.
 ```
 
 ---
@@ -314,7 +320,7 @@ Pass for build verification and model inspection.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0002.
+No functional implementation issues identified in T0003.
 ```
 
 See:
@@ -357,13 +363,13 @@ Status: Core TypeScript project model is implemented in src/core/model; serializ
 # 10. Next Recommended Action
 
 ```text
-Start T0003 — Basic App Layout.
+Start T0004 — Cue Controls UI.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0003-basic-app-layout
+gamecue/t0004-cue-controls-ui
 ```
 
 Recommended prompt source:
