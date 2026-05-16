@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, and basic app layout implemented
-Last completed ticket: T0003 — Basic App Layout
+Project status: App skeleton, core project model, basic app layout, and cue controls UI implemented
+Last completed ticket: T0004 — Cue Controls UI
 Current ticket: None
-Next recommended ticket: T0004 — Cue Controls UI
+Next recommended ticket: T0005 — Music Theory Helpers
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -64,12 +64,13 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0003 basic app layout exists
+Source code status: T0004 cue controls UI exists with app-level controlled settings state
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
 Core model created: Yes
 Basic app layout created: Yes
+Cue controls UI created: Yes
 Generation system created: No
 Playback system created: No
 Save/load created: No
@@ -280,6 +281,7 @@ gamecue/
 | T0001 — Project Skeleton | Implemented | Not created | N/A | App shell, folder skeleton, strict TypeScript config, README update |
 | T0002 — Core Project Model | Implemented | Not created | N/A | Added serializable project model types, enum-like string unions, and `createExampleProject()` |
 | T0003 — Basic App Layout | Implemented | Not created | N/A | Added dark responsive panel layout with placeholder UI components for project summary, cue controls, tracks, transport, and save/load |
+| T0004 — Cue Controls UI | Implemented | Not created | N/A | Replaced disabled cue-setting placeholders with controlled inputs stored in app state and surfaced live in the project summary |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
 ---
@@ -289,13 +291,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0003
+Status: Complete for T0004
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0003 was completed without introducing Tone.js, generation logic, playback logic, save/load behavior, export logic, or real control behavior.
+T0004 was completed without introducing generation logic, playback logic, Tone.js, save/load behavior, or export behavior. Generate Cue remains disabled and placeholder-only.
 ```
 
 ---
@@ -307,8 +309,8 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- local TypeScript compiler build via node_modules/.bin/tsc.cmd -b
-- local Vite production build via node_modules/.bin/vite.cmd build
+- bundled Node runtime executing .\node_modules\typescript\bin\tsc -b
+- bundled Node runtime executing .\node_modules\vite\bin\vite.js build
 ```
 
 ## 7.2 Last Build Result
@@ -326,7 +328,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build verification passed. Browser layout verification still recommended for a human pass.
+Build verification passed. Browser verification is still recommended for a human pass on the controlled form behavior and responsive layout.
 ```
 
 ---
@@ -336,7 +338,7 @@ Build verification passed. Browser layout verification still recommended for a h
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0003.
+No functional implementation issues identified in T0004 from the build check alone.
 ```
 
 See:
@@ -405,13 +407,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0004 — Cue Controls UI.
+Start T0005 — Music Theory Helpers.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0004-cue-controls-ui
+gamecue/t0005-music-theory-helpers
 ```
 
 Recommended prompt source:
