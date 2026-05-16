@@ -19,6 +19,7 @@ docs/GameCue_MVP_Technical_Design.md
 docs/Tickets.md
 docs/Codex_Prompt_Playbook.md
 docs/Naming_And_Code_Conventions.md
+docs/UI_Style_Guide.md
 ```
 
 If a ticket changes architecture, data model, playback, export behavior, or long-term direction, also update or recommend updates to the relevant docs.
