@@ -467,7 +467,16 @@ Current starter skills:
 | `gamecue-audio-playback`      | Tone.js playback, scheduling, instruments, transport, mute/solo, cleanup |
 | `gamecue-save-load`           | Serialization, validation, `.gamecue.json`, browser save/load            |
 | `gamecue-manual-verification` | Producing or checking manual verification steps after tickets            |
-```
+
+Skill guidance does not override:
+
+- AGENTS.md
+- docs/Tickets.md
+- The active ticket prompt
+- Architecture boundaries
+- Manual verification expectations
+
+If a skill suggests work outside the current ticket scope, report it as a follow-up instead of implementing it.
 
 ---
 
