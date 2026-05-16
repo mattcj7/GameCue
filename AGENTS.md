@@ -18,6 +18,7 @@ docs/GameCue_Full_Design_Document.md
 docs/GameCue_MVP_Technical_Design.md
 docs/Tickets.md
 docs/Codex_Prompt_Playbook.md
+docs/Naming_And_Code_Conventions.md
 ```
 
 If a ticket changes architecture, data model, playback, export behavior, or long-term direction, also update or recommend updates to the relevant docs.
@@ -435,6 +436,16 @@ Avoid:
 - Suppressing TypeScript errors without explanation
 
 If `any` is unavoidable, include a short comment explaining why.
+
+---
+
+# Naming and Code Conventions
+
+Follow:
+
+```text
+docs/Naming_And_Code_Conventions.md
+```
 
 ---
 
