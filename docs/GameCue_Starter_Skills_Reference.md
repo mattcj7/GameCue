@@ -89,6 +89,28 @@ Suggested structure:
     gamecue-doc-updater/
       SKILL.md
 ```
+---
+
+# 2.4 Current Skill Implementation Status
+
+As of 2026-05-16, the following starter skills exist in the repo:
+
+| Skill | Status | Path |
+|---|---|---|
+| `gamecue-ticket-runner` | Created | `.codex/skills/gamecue-ticket-runner/SKILL.md` |
+| `gamecue-core-generation` | Created | `.codex/skills/gamecue-core-generation/SKILL.md` |
+| `gamecue-audio-playback` | Created | `.codex/skills/gamecue-audio-playback/SKILL.md` |
+| `gamecue-save-load` | Created | `.codex/skills/gamecue-save-load/SKILL.md` |
+| `gamecue-manual-verification` | Created | `.codex/skills/gamecue-manual-verification/SKILL.md` |
+| `gamecue-design-check` | Planned | `.codex/skills/gamecue-design-check/SKILL.md` |
+| `gamecue-export` | Planned | `.codex/skills/gamecue-export/SKILL.md` |
+| `gamecue-ui` | Planned | `.codex/skills/gamecue-ui/SKILL.md` |
+| `gamecue-doc-updater` | Planned | `.codex/skills/gamecue-doc-updater/SKILL.md` |
+| `gamecue-ai-assistant` | Later | `.codex/skills/gamecue-ai-assistant/SKILL.md` |
+
+These five created skills were merged during T0003. They are accepted as intentional workflow support and should remain in the repo.
+
+Future skills should be added through explicit docs/workflow tickets.
 
 ---
 
@@ -554,20 +576,14 @@ Recommended order:
 
 # 5. Minimal Starter Skill Set
 
-If we only create three skills early, create:
+The initial starter skill set now exists and includes:
 
 ```text
 gamecue-ticket-runner
 gamecue-manual-verification
 gamecue-core-generation
-```
-
-If we create five, add:
-
-```text
 gamecue-audio-playback
 gamecue-save-load
-```
 
 This gives us enough support for T0001 through T0023.
 
