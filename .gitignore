@@ -1,0 +1,98 @@
+# GameCue .gitignore
+# Vite + React + TypeScript / Node project
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+
+# Vite / frontend cache
+.vite/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local editor settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.swp
+*.swo
+*.swn
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage / test output
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Local-only project exports
+exports/
+Exports/
+
+# Generated audio/MIDI exports
+# Keep source .gamecue.json files tracked only when intentionally added as samples.
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.aiff
+*.mid
+*.midi
+
+# Allow intentional sample/demo assets if later needed.
+!public/samples/**/*.wav
+!public/samples/**/*.mp3
+!public/samples/**/*.ogg
+!public/samples/**/*.mid
+!public/samples/**/*.midi
+
+# Local GameCue project drafts
+*.local.gamecue.json
+*.draft.gamecue.json
+
+# Optional desktop packaging outputs for future Tauri/Electron work
+src-tauri/target/
+target/
+release/
+releases/
+
+# Package manager artifacts
+.pnpm-store/
+
+# Misc
+*.bak
+*.backup
