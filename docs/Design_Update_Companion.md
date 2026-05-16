@@ -282,6 +282,27 @@ The fastest path is to prove the concept in a browser first. C# and JUCE remain 
 
 ---
 
+## D0007 — Accept Starter Codex Skills as Project Workflow Support
+
+**Date:** 2026-05-16  
+**Status:** Approved  
+**Related Tickets:** T0003, T0003A, future implementation tickets  
+**Affected Areas:** `.codex/skills`, AGENTS.md, workflow docs
+
+### Decision
+
+GameCue will keep the starter Codex skills that were added during the T0003 merge:
+
+```text
+gamecue-ticket-runner
+gamecue-core-generation
+gamecue-audio-playback
+gamecue-save-load
+gamecue-manual-verification
+```
+
+---
+
 # 5. Ticket Alignment Notes
 
 ## T0001 — Project Skeleton
@@ -313,25 +334,6 @@ Status:
 
 ```text
 Not started.
-```
-
-## D0007 — Accept Starter Codex Skills as Project Workflow Support
-
-**Date:** 2026-05-16  
-**Status:** Approved  
-**Related Tickets:** T0003, T0003A, future implementation tickets  
-**Affected Areas:** `.codex/skills`, AGENTS.md, workflow docs
-
-### Decision
-
-GameCue will keep the starter Codex skills that were added during the T0003 merge:
-
-```text
-gamecue-ticket-runner
-gamecue-core-generation
-gamecue-audio-playback
-gamecue-save-load
-gamecue-manual-verification
 ```
 
 ---

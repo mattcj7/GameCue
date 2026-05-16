@@ -450,17 +450,15 @@ docs/Naming_And_Code_Conventions.md
 
 ---
 
----
-
 # Project-Specific Codex Skills
 
 This repo includes starter Codex skills under:
 
 ```text
 .codex/skills/
-```
 
 Current starter skills:
+
 | Skill                         | Use When                                                                 |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | `gamecue-ticket-runner`       | General one-ticket-at-a-time implementation work                         |
@@ -468,6 +466,7 @@ Current starter skills:
 | `gamecue-audio-playback`      | Tone.js playback, scheduling, instruments, transport, mute/solo, cleanup |
 | `gamecue-save-load`           | Serialization, validation, `.gamecue.json`, browser save/load            |
 | `gamecue-manual-verification` | Producing or checking manual verification steps after tickets            |
+```
 
 ---
 
