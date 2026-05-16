@@ -456,6 +456,7 @@ This repo includes starter Codex skills under:
 
 ```text
 .codex/skills/
+```
 
 Current starter skills:
 
