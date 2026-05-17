@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, and music theory helpers implemented
-Last completed ticket: T0005 — Music Theory Helpers
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, and cue templates implemented
+Last completed ticket: T0006 — Cue Template System
 Current ticket: None
-Next recommended ticket: T0006 — Cue Template System
+Next recommended ticket: T0007 — Chord Progression Generator
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0005 music theory helpers exist under src/core/theory with sharp-based notes, scales, triads, and simple progression resolution
+Source code status: T0006 cue templates exist under src/core/templates with seven initial cue templates, lookup helpers, and computed default cue settings
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -72,6 +72,7 @@ Core model created: Yes
 Basic app layout created: Yes
 Cue controls UI created: Yes
 Music theory helpers created: Yes
+Cue template system created: Yes
 Generation system created: No
 Playback system created: No
 Save/load created: No
@@ -268,6 +269,11 @@ gamecue/
         progressions.ts
         scales.ts
       templates/
+        .gitkeep
+        CueTemplate.ts
+        cueTemplates.ts
+        index.ts
+        templateLookup.ts
       generation/
       serialization/
     playback/
@@ -295,6 +301,7 @@ gamecue/
 | T0003 — Basic App Layout | Implemented | Not created | N/A | Added dark responsive panel layout with placeholder UI components for project summary, cue controls, tracks, transport, and save/load |
 | T0004 — Cue Controls UI | Implemented | Not created | N/A | Replaced disabled cue-setting placeholders with controlled inputs stored in app state and surfaced live in the project summary |
 | T0005 — Music Theory Helpers | Implemented | Not created | N/A | Added sharp-based note normalization/transposition, major and natural minor scale helpers, triad helpers, and simple roman-numeral progression resolution |
+| T0006 — Cue Template System | Implemented | Not created | N/A | Added seven engine-agnostic cue templates, typed generation profiles/track presets, cue-type and id lookup helpers, and computed default cue settings |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
 ---
@@ -304,13 +311,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0005
+Status: Complete for T0006
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0005 was completed without introducing generation pipeline behavior, playback logic, Tone.js, save/load behavior, export behavior, or UI changes.
+T0006 was completed without introducing generation pipeline behavior, playback logic, Tone.js, save/load behavior, export behavior, or UI changes.
 ```
 
 ---
@@ -322,9 +329,7 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- bundled Node runtime executing .\node_modules\typescript\bin\tsc -b
-- bundled Node runtime executing .\node_modules\vite\bin\vite.js build
-- bundled Node runtime executing an in-memory theory helper spot-check against src/core/theory/index.ts
+- & 'C:\Program Files\nodejs\npm.cmd' run build
 ```
 
 ## 7.2 Last Build Result
@@ -342,7 +347,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build verification passed. An automated theory spot-check confirmed expected outputs for C major, D natural minor, C major triad, D minor triad, and a simple D minor progression. Human verification is still recommended.
+Build verification passed for T0006. Human verification should confirm all seven cue types map to one template, Chase is faster than Investigation, and Dark Ambient plus Emotional Scene stay sparse by profile/preset design.
 ```
 
 ---
@@ -352,7 +357,7 @@ Build verification passed. An automated theory spot-check confirmed expected out
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0005 from the build check alone.
+No functional implementation issues identified in T0006 from the build check alone.
 ```
 
 See:
@@ -372,7 +377,7 @@ for detailed tracking once implementation begins.
 ```text
 src/core exists: Yes
 Tone.js imported in src/core: No
-Status: Clean. `src/core/theory` contains pure helper modules with no Tone.js, React, DOM, or browser audio imports.
+Status: Clean. `src/core/theory` and `src/core/templates` contain pure helper/data modules with no Tone.js, React, DOM, or browser audio imports.
 ```
 
 ## 9.2 Playback Boundary
@@ -421,13 +426,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0006 — Cue Template System.
+Start T0007 — Chord Progression Generator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0006-cue-template-system
+gamecue/t0007-chord-progression-generator
 ```
 
 Recommended prompt source:
