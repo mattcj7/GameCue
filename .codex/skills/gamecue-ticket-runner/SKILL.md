@@ -64,6 +64,23 @@ npm run dev
 
 Do not invent commands that are not configured. If a command is missing, report that clearly.
 
+For Codex Windows verification, use this build order:
+
+```powershell
+npm.cmd run build
+& 'C:\Program Files\nodejs\npm.cmd' run build
+& .\node_modules\.bin\tsc.cmd -b
+& .\node_modules\.bin\vite.cmd build
+```
+
+If `npm.ps1` is blocked or `npm` is missing from `PATH`, treat that as an environment issue, not a code failure.
+
+Do not waste time repeatedly probing `npm` PATH issues once one verification path works.
+
+Do not use raw Node ESM imports against TypeScript source files for verification when the code depends on Vite/TypeScript module resolution.
+
+Always report which verification path you used.
+
 ## Completion Report
 
 End with:

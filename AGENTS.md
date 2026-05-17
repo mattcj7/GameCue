@@ -505,6 +505,39 @@ If tests exist, run the relevant test command and report the result.
 
 ---
 
+# 16A. Windows / Codex Verification Notes
+
+In Codex Windows shells, `npm`, `npm.cmd`, or `npm.ps1` may not be available on `PATH`.
+
+PowerShell may also block `npm.ps1`, which is an environment issue rather than a code failure.
+
+Preferred build verification order:
+
+```powershell
+npm.cmd run build
+```
+
+If `npm.cmd` is not on `PATH`, use:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' run build
+```
+
+If `npm` is unavailable but `node_modules` exists, use:
+
+```powershell
+& .\node_modules\.bin\tsc.cmd -b
+& .\node_modules\.bin\vite.cmd build
+```
+
+Do not waste time repeatedly probing `npm` PATH issues once one of these commands works.
+
+Do not run raw Node ESM spot checks directly against TypeScript source files when imports depend on Vite/TypeScript module resolution.
+
+Always report which verification path was used.
+
+---
+
 # 17. Manual Verification Expectations
 
 Every completed ticket report should include a small manual verification checklist.

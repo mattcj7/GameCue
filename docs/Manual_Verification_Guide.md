@@ -151,14 +151,36 @@ Failure signs:
 
 Run after every implementation ticket:
 
-```bash
-npm run build
+```powershell
+npm.cmd run build
 ```
 
 Expected:
 
 ```text
 Build succeeds without TypeScript errors.
+```
+
+If `npm.cmd` is not on `PATH`, use:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' run build
+```
+
+If `npm` is unavailable but `node_modules` exists, use:
+
+```powershell
+& .\node_modules\.bin\tsc.cmd -b
+& .\node_modules\.bin\vite.cmd build
+```
+
+Notes:
+
+```text
+PowerShell blocking npm.ps1 is not a code failure.
+Missing npm on PATH is not a code failure.
+Raw Node ESM imports against TypeScript source files may not match Vite/TypeScript module resolution.
+Always record which verification command was used.
 ```
 
 Failure signs:
