@@ -64,6 +64,39 @@ Follow these project rules:
 
 ---
 
+# 2A. Standard Verification Commands on Windows
+
+Use this verification order in Codex Windows shells:
+
+```powershell
+npm.cmd run build
+```
+
+If `npm.cmd` is not on `PATH`, use:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' run build
+```
+
+If `npm` is unavailable but `node_modules` exists, use:
+
+```powershell
+& .\node_modules\.bin\tsc.cmd -b
+& .\node_modules\.bin\vite.cmd build
+```
+
+PowerShell blocking `npm.ps1` is not a code failure.
+
+Missing `npm` on `PATH` is not a code failure.
+
+Do not waste time repeatedly probing `npm` PATH issues once a known-good command works.
+
+Do not use raw Node ESM source-file imports for verification when the code depends on Vite/TypeScript module resolution.
+
+Always report which verification command path was used.
+
+---
+
 # 3. Standard Ticket Implementation Prompt
 
 Use this for normal Codex tickets.
@@ -118,6 +151,8 @@ Project rules:
 - Prefer small, typed, testable functions.
 - Use TypeScript strict mode.
 - Avoid unnecessary dependencies.
+- Use the Windows/Codex verification order from docs/Codex_Prompt_Playbook.md. Prefer npm.cmd run build, then the full npm path, then local tsc/vite shims.
+- Do not waste time on raw Node ESM source imports when Vite/TypeScript module resolution is required.
 
 After implementation, provide:
 - Summary of what changed
