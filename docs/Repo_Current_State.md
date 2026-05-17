@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, and cue templates implemented
-Last completed ticket: T0006 — Cue Template System
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, and chord progression generation implemented
+Last completed ticket: T0007 — Chord Progression Generator
 Current ticket: None
-Next recommended ticket: T0007 — Chord Progression Generator
+Next recommended ticket: T0008 — Drum Pattern Generator
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0006 cue templates exist under src/core/templates with seven initial cue templates, lookup helpers, and computed default cue settings
+Source code status: T0007 chord progression generation exists under src/core/generation with deterministic style/pattern selection, template-aware progression routing, and structured bar-aligned chord output
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -73,7 +73,7 @@ Basic app layout created: Yes
 Cue controls UI created: Yes
 Music theory helpers created: Yes
 Cue template system created: Yes
-Generation system created: No
+Generation system created: Partially
 Playback system created: No
 Save/load created: No
 Export system created: No
@@ -275,6 +275,9 @@ gamecue/
         index.ts
         templateLookup.ts
       generation/
+        .gitkeep
+        chordProgressions.ts
+        index.ts
       serialization/
     playback/
       tone/
@@ -302,6 +305,7 @@ gamecue/
 | T0004 — Cue Controls UI | Implemented | Not created | N/A | Replaced disabled cue-setting placeholders with controlled inputs stored in app state and surfaced live in the project summary |
 | T0005 — Music Theory Helpers | Implemented | Not created | N/A | Added sharp-based note normalization/transposition, major and natural minor scale helpers, triad helpers, and simple roman-numeral progression resolution |
 | T0006 — Cue Template System | Implemented | Not created | N/A | Added seven engine-agnostic cue templates, typed generation profiles/track presets, cue-type and id lookup helpers, and computed default cue settings |
+| T0007 — Chord Progression Generator | Implemented | Not created | N/A | Added deterministic chord progression generation from cue settings and template profiles, with structured chord output fitted to cue bar counts |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
 ---
@@ -311,13 +315,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0006
+Status: Complete for T0007
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0006 was completed without introducing generation pipeline behavior, playback logic, Tone.js, save/load behavior, export behavior, or UI changes.
+T0007 was completed without introducing playback logic, Tone.js, save/load behavior, export behavior, UI changes, or non-chord generation systems.
 ```
 
 ---
@@ -330,6 +334,8 @@ Update after each ticket.
 
 ```text
 - & 'C:\Program Files\nodejs\npm.cmd' run build
+- .\node_modules\.bin\esbuild.cmd .\src\core\generation\chordProgressions.ts --bundle --platform=node --format=esm --outfile=.codex-temp\bundle\chordProgressions.js
+- node --input-type=module -e "...generateChordProgression verification..."
 ```
 
 ## 7.2 Last Build Result
@@ -347,7 +353,7 @@ No tests yet.
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build verification passed for T0006. Human verification should confirm all seven cue types map to one template, Chase is faster than Investigation, and Dark Ambient plus Emotional Scene stay sparse by profile/preset design.
+Build verification passed for T0007. Direct verification confirmed a non-empty D minor Investigation progression, a non-empty C major Menu Theme progression, and bar-aligned chord timing with no chord extending beyond totalBeats.
 ```
 
 ---
@@ -357,7 +363,7 @@ Build verification passed for T0006. Human verification should confirm all seven
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0006 from the build check alone.
+No functional implementation issues identified in T0007 from the build check and direct chord progression verification.
 ```
 
 See:
@@ -377,7 +383,7 @@ for detailed tracking once implementation begins.
 ```text
 src/core exists: Yes
 Tone.js imported in src/core: No
-Status: Clean. `src/core/theory` and `src/core/templates` contain pure helper/data modules with no Tone.js, React, DOM, or browser audio imports.
+Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation` contain pure helper/data modules with no Tone.js, React, DOM, or browser audio imports.
 ```
 
 ## 9.2 Playback Boundary
@@ -426,13 +432,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0007 — Chord Progression Generator.
+Start T0008 — Drum Pattern Generator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0007-chord-progression-generator
+gamecue/t0008-drum-pattern-generator
 ```
 
 Recommended prompt source:
