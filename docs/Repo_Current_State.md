@@ -31,8 +31,8 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, and chord progression generation implemented
-Last completed ticket: T0007 — Chord Progression Generator
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, and core test runner implemented
+Last completed ticket: T0007A — Add Core Test Runner
 Current ticket: None
 Next recommended ticket: T0008 — Drum Pattern Generator
 Current branch: Not created yet
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0007 chord progression generation exists under src/core/generation with deterministic style/pattern selection, template-aware progression routing, and structured bar-aligned chord output
+Source code status: T0007A adds Vitest with focused tests covering core theory helpers, cue templates, and chord progression generation
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -77,7 +77,7 @@ Generation system created: Partially
 Playback system created: No
 Save/load created: No
 Export system created: No
-Tests created: No
+Tests created: Yes
 ```
 
 ---
@@ -119,6 +119,8 @@ Actual scripts:
 ```text
 dev: vite
 build: tsc -b && vite build
+test: vitest run
+test:watch: vitest
 preview: vite preview
 ```
 
@@ -148,6 +150,7 @@ react-dom
 vite
 typescript
 @vitejs/plugin-react
+vitest
 @types/node
 @types/react
 @types/react-dom
@@ -286,6 +289,11 @@ gamecue/
       tracks/
       project/
       shared/
+  tests/
+    core/
+      chordProgressions.test.ts
+      templates.test.ts
+      theory.test.ts
 ```
 
 ---
@@ -306,6 +314,7 @@ gamecue/
 | T0005 — Music Theory Helpers | Implemented | Not created | N/A | Added sharp-based note normalization/transposition, major and natural minor scale helpers, triad helpers, and simple roman-numeral progression resolution |
 | T0006 — Cue Template System | Implemented | Not created | N/A | Added seven engine-agnostic cue templates, typed generation profiles/track presets, cue-type and id lookup helpers, and computed default cue settings |
 | T0007 — Chord Progression Generator | Implemented | Not created | N/A | Added deterministic chord progression generation from cue settings and template profiles, with structured chord output fitted to cue bar counts |
+| T0007A — Add Core Test Runner | Implemented | Not created | N/A | Added Vitest, `test` and `test:watch` scripts, and focused unit tests for theory helpers, cue templates, and chord progression generation |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -316,13 +325,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0007
+Status: Complete for T0007A
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0007 was completed without introducing playback logic, Tone.js, save/load behavior, export behavior, UI changes, or non-chord generation systems.
+T0007A was completed without changing runtime app behavior, UI, playback, save/load, export, or core feature behavior beyond test coverage.
 ```
 
 ---
@@ -334,9 +343,9 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
+- & 'C:\Program Files\nodejs\npm.cmd' install -D vitest
 - & 'C:\Program Files\nodejs\npm.cmd' run build
-- .\node_modules\.bin\esbuild.cmd .\src\core\generation\chordProgressions.ts --bundle --platform=node --format=esm --outfile=.codex-temp\bundle\chordProgressions.js
-- node --input-type=module -e "...generateChordProgression verification..."
+- & 'C:\Program Files\nodejs\npm.cmd' test
 ```
 
 ## 7.2 Last Build Result
@@ -348,13 +357,13 @@ Pass
 ## 7.3 Last Test Result
 
 ```text
-No tests yet.
+Pass
 ```
 
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build verification passed for T0007. Direct verification confirmed a non-empty D minor Investigation progression, a non-empty C major Menu Theme progression, and bar-aligned chord timing with no chord extending beyond totalBeats.
+Build and test verification passed for T0007A. Vitest now covers C major and D minor theory helpers, cue template lookup/profile expectations, and chord progression generation timing/count behavior.
 ```
 
 ---
@@ -364,7 +373,7 @@ Build verification passed for T0007. Direct verification confirmed a non-empty D
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0007 from the build check and direct chord progression verification.
+No functional implementation issues identified in T0007A from build and test verification.
 ```
 
 See:
