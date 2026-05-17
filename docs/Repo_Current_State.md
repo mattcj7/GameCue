@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, and core test runner implemented
-Last completed ticket: T0007A — Add Core Test Runner
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, and core test runner implemented
+Last completed ticket: T0008 — Drum Pattern Generator
 Current ticket: None
-Next recommended ticket: T0008 — Drum Pattern Generator
+Next recommended ticket: T0009 — Bassline Generator
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0007A adds Vitest with focused tests covering core theory helpers, cue templates, and chord progression generation
+Source code status: T0008 adds deterministic beat-based drum pattern generation with cue-template-aware percussion styles and Vitest coverage for density, timing bounds, event typing, and sparse ambient behavior
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -280,6 +280,7 @@ gamecue/
       generation/
         .gitkeep
         chordProgressions.ts
+        drumPatterns.ts
         index.ts
       serialization/
     playback/
@@ -292,6 +293,7 @@ gamecue/
   tests/
     core/
       chordProgressions.test.ts
+      drumPatterns.test.ts
       templates.test.ts
       theory.test.ts
 ```
@@ -315,6 +317,7 @@ gamecue/
 | T0006 — Cue Template System | Implemented | Not created | N/A | Added seven engine-agnostic cue templates, typed generation profiles/track presets, cue-type and id lookup helpers, and computed default cue settings |
 | T0007 — Chord Progression Generator | Implemented | Not created | N/A | Added deterministic chord progression generation from cue settings and template profiles, with structured chord output fitted to cue bar counts |
 | T0007A — Add Core Test Runner | Implemented | Not created | N/A | Added Vitest, `test` and `test:watch` scripts, and focused unit tests for theory helpers, cue templates, and chord progression generation |
+| T0008 — Drum Pattern Generator | Implemented | Not created | N/A | Added deterministic beat-based drum event generation for five drum lanes with template-aware density differences and focused Vitest coverage |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -442,13 +445,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0008 — Drum Pattern Generator.
+Start T0009 — Bassline Generator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0008-drum-pattern-generator
+gamecue/t0009-bassline-generator
 ```
 
 Recommended prompt source:
