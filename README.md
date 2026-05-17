@@ -46,6 +46,12 @@ Open the local URL shown by Vite.
 npm run build
 ```
 
+## Run Tests
+
+```bash
+npm test
+```
+
 ## Preview Production Build
 
 ```bash
