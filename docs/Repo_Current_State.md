@@ -31,11 +31,11 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, and core test runner implemented
-Last completed ticket: T0014 — Tone.js Instrument Factory
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, and core test runner implemented
+Last completed ticket: T0015 — Tone.js Scheduler
 Current ticket: None
-Next recommended ticket: T0015 — Tone.js Scheduler
-Current branch: gamecue/t0014-tonejs-instrument-factory
+Next recommended ticket: T0016 — Play / Stop / Loop Controls
+Current branch: gamecue/t0015-tonejs-scheduler
 Repo initialized: Yes
 ```
 
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js instrument factory in `src/playback/tone`, and focused Vitest coverage
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js instrument factory in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control and reload-safe cleanup, and focused Vitest coverage
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -74,7 +74,7 @@ Cue controls UI created: Yes
 Music theory helpers created: Yes
 Cue template system created: Yes
 Generation system created: Yes
-Playback system created: Interface and Tone instrument factory
+Playback system created: Interface, Tone instrument factory, and Tone.js scheduler adapter
 Save/load created: No
 Export system created: No
 Tests created: Yes
