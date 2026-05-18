@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { CueSettings } from "../core/model";
+import { generateProject } from "../core/generation";
+import type { CueSettings, GameCueProject } from "../core/model";
 import { timeSignatures } from "../core/model";
 import { CueControls } from "../ui/controls/CueControls";
 import { TransportControls } from "../ui/controls/TransportControls";
@@ -20,6 +21,7 @@ const defaultCueSettings: CueSettings = {
 
 function App() {
   const [cueSettings, setCueSettings] = useState<CueSettings>(defaultCueSettings);
+  const [project, setProject] = useState<GameCueProject | null>(null);
 
   const handleCueSettingChange = <Field extends keyof CueSettings>(
     field: Field,
@@ -31,24 +33,32 @@ function App() {
     }));
   };
 
+  const handleGenerateCue = () => {
+    setProject(generateProject(cueSettings));
+  };
+
   return (
     <main className="app-shell">
       <header className="panel app-header">
         <div className="app-header-copy">
-          <p className="eyebrow">T0004 - Cue Controls UI</p>
+          <p className="eyebrow">T0012 - Full Project Generator</p>
           <h1>GameCue</h1>
           <p className="tagline">Generate loopable game music cues for game projects.</p>
         </div>
-        <ProjectSummary settings={cueSettings} />
+        <ProjectSummary settings={cueSettings} project={project} />
       </header>
 
       <section className="workspace-grid" aria-label="GameCue workspace layout">
         <aside className="panel side-panel">
-          <CueControls settings={cueSettings} onSettingChange={handleCueSettingChange} />
+          <CueControls
+            settings={cueSettings}
+            onSettingChange={handleCueSettingChange}
+            onGenerateCue={handleGenerateCue}
+          />
         </aside>
 
         <section className="panel main-panel">
-          <TrackList />
+          <TrackList project={project} />
         </section>
       </section>
 

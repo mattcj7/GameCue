@@ -31,11 +31,11 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, and core test runner implemented
-Last completed ticket: T0011 — Melody / Motif Generator
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, and core test runner implemented
+Last completed ticket: T0012 — Full Project Generator
 Current ticket: None
-Next recommended ticket: T0012 — Full Project Generator
-Current branch: gamecue/t0011-melody-motif-generator
+Next recommended ticket: T0013 — PlaybackEngine Interface
+Current branch: gamecue/t0012-full-project-generator
 Repo initialized: Yes
 ```
 
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic core melody/motif generation is now implemented alongside the existing chord, drum, bass, and chord/pad generators, using cue-aware density, in-scale note selection, strong-beat chord-tone preference, intentional rests, and focused Vitest coverage
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, and focused Vitest coverage
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -73,7 +73,7 @@ Basic app layout created: Yes
 Cue controls UI created: Yes
 Music theory helpers created: Yes
 Cue template system created: Yes
-Generation system created: Partially
+Generation system created: Yes
 Playback system created: No
 Save/load created: No
 Export system created: No
@@ -325,6 +325,7 @@ gamecue/
 | T0009 — Bassline Generator | Implemented | Not created | N/A | Added deterministic beat-based bass note generation from chord roots with cue-aware rhythm profiles, low-register pitch mapping, and focused Vitest coverage |
 | T0010 — Chord / Pad Generator | Implemented | gamecue/t0010a-fix-chord-pad-voicings | N/A | Reapplied the original chord/pad generator with a wrapped-voicing fix so chord tones stay stacked above the root, with focused tests for octave-aware voicing |
 | T0011 — Melody / Motif Generator | Implemented | gamecue/t0011-melody-motif-generator | N/A | Added deterministic beat-based melody/motif generation driven by cue type, intensity, scale notes, and active chords, with focused Vitest coverage for in-key notes, strong-beat chord tones, timing bounds, and density differences |
+| T0012 — Full Project Generator | Implemented | gamecue/t0012-full-project-generator | N/A | Added deterministic `generateProject(settings)` composition, stable project metadata and mix defaults, Generate Cue wiring in app state, generated track/event summaries in the UI, and focused Vitest coverage for project shape, timing bounds, determinism, and serialization |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -334,14 +335,14 @@ gamecue/
 
 ```text
 Ticket: None
-Branch: gamecue/t0011-melody-motif-generator
-Status: Complete for T0011 implementation
+Branch: gamecue/t0012-full-project-generator
+Status: Complete for T0012 implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch implements T0011 in `src/core/generation` and `tests/core` only, adding melody/motif event generation without changing UI, playback, save/load, export, or the existing chord, drum, bassline, and chord/pad generator behavior.
+This branch implements T0012 across `src/core/generation`, `src/app`, `src/ui/controls`, `src/ui/tracks`, `src/ui/project`, `tests/core`, and `docs/Repo_Current_State.md`, composing the existing generators into a complete `GameCueProject` and wiring Generate Cue to update visible project/track summaries without adding playback, save/load, export, or Tone.js behavior.
 ```
 
 ---
@@ -372,7 +373,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0011 using `C:\Program Files\nodejs\npm.cmd`. Vitest now covers melody generation across cue types, in-key note selection, strong-beat chord-tone anchoring, timing bounds, deterministic sorting, sparse Investigation output, more active Chase/Menu motifs, and very low-density Dark Ambient behavior.
+Build and test verification passed for T0012 using `C:\Program Files\nodejs\npm.cmd`. The app now builds with Generate Cue wired to deterministic project generation, and Vitest covers project schema shape, one-section structure, four generated tracks, per-track mix defaults, beat-bound timing, cue-dependent event-count differences, determinism, and JSON serialization. Manual browser verification is still recommended for the visible Generate Cue flow.
 ```
 
 ---
@@ -382,7 +383,7 @@ Build and test verification passed for T0011 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0011 from build and test verification.
+No functional implementation issues identified in T0012 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass.
 ```
 
 See:
@@ -451,13 +452,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0012 — Full Project Generator.
+Start T0013 — PlaybackEngine Interface.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0012-full-project-generator
+gamecue/t0013-playbackengine-interface
 ```
 
 Recommended prompt source:

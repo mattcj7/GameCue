@@ -243,6 +243,15 @@ textarea {
   color: var(--color-text-muted);
 }
 
+.track-copy-meta {
+  font-family:
+    "Consolas",
+    "SFMono-Regular",
+    ui-monospace,
+    monospace;
+  font-size: 0.88rem;
+}
+
 .track-meta {
   display: grid;
   justify-items: end;
@@ -250,6 +259,7 @@ textarea {
 }
 
 .track-type,
+.track-stat,
 .transport-status {
   display: inline-flex;
   align-items: center;
@@ -260,6 +270,19 @@ textarea {
   background: var(--color-accent-soft);
   color: var(--color-accent);
   font-size: 0.85rem;
+}
+
+.track-stat-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.track-stat {
+  color: var(--color-text-muted);
+  background: rgba(159, 176, 192, 0.12);
+  border-color: var(--color-border);
 }
 
 .track-actions,
@@ -311,6 +334,10 @@ textarea {
 
   .track-meta {
     justify-items: start;
+  }
+
+  .track-stat-list {
+    justify-content: flex-start;
   }
 
   .field-row {

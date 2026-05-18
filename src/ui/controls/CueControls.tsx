@@ -10,6 +10,7 @@ export interface CueControlsProps {
     field: Field,
     value: CueSettings[Field],
   ) => void;
+  onGenerateCue: () => void;
 }
 
 function formatOptionLabel(value: string): string {
@@ -19,7 +20,7 @@ function formatOptionLabel(value: string): string {
     .join(" ");
 }
 
-export function CueControls({ settings, onSettingChange }: CueControlsProps) {
+export function CueControls({ settings, onSettingChange, onGenerateCue }: CueControlsProps) {
   const handleBpmChange = (value: string) => {
     const nextBpm = Number.parseInt(value, 10);
 
@@ -43,8 +44,7 @@ export function CueControls({ settings, onSettingChange }: CueControlsProps) {
           Cue Controls
         </h2>
         <p className="panel-description">
-          Choose the cue settings now. Generation stays disabled until a later ticket wires the
-          actual project creation flow.
+          Choose the cue settings and generate a deterministic project from the current values.
         </p>
       </div>
 
@@ -155,13 +155,13 @@ export function CueControls({ settings, onSettingChange }: CueControlsProps) {
           </label>
         </div>
 
-        <button type="button" className="placeholder-button primary-button" disabled>
+        <button type="button" className="placeholder-button primary-button" onClick={onGenerateCue}>
           Generate Cue
         </button>
 
         <p className="field-note">
-          Time signature is fixed at {settings.timeSignature} for now. Generation and playback
-          remain placeholder-only in this ticket.
+          Time signature is fixed at {settings.timeSignature} for now. Generation is available,
+          while playback remains out of scope in this ticket.
         </p>
       </form>
     </section>
