@@ -185,7 +185,8 @@ describe("toneInstruments", () => {
       return source.includes('from "tone"') || source.includes("from 'tone'");
     });
 
-    expect(toneImportFiles.map((filePath) => normalizeRepoPath(repoRoot, filePath))).toEqual([
+    expect(toneImportFiles.map((filePath) => normalizeRepoPath(repoRoot, filePath)).sort()).toEqual([
+      "src/playback/tone/TonePlaybackEngine.ts",
       "src/playback/tone/toneInstruments.ts",
     ]);
   });
