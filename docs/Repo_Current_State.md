@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, and core test runner implemented
-Last completed ticket: T0012 — Full Project Generator
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, and core test runner implemented
+Last completed ticket: T0013 — PlaybackEngine Interface
 Current ticket: None
-Next recommended ticket: T0013 — PlaybackEngine Interface
+Next recommended ticket: T0014 — Tone.js Instrument Factory
 Current branch: gamecue/t0012-full-project-generator
 Repo initialized: Yes
 ```
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, and focused Vitest coverage
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, and focused Vitest coverage
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -74,7 +74,7 @@ Cue controls UI created: Yes
 Music theory helpers created: Yes
 Cue template system created: Yes
 Generation system created: Yes
-Playback system created: No
+Playback system created: Interface only
 Save/load created: No
 Export system created: No
 Tests created: Yes
@@ -207,6 +207,8 @@ gamecue/
       generation/
       serialization/
     playback/
+      PlaybackEngine.ts
+      index.ts
       tone/
     ui/
       controls/
@@ -298,8 +300,12 @@ gamecue/
       chordPads.test.ts
       chordProgressions.test.ts
       drumPatterns.test.ts
+      melodies.test.ts
+      projects.test.ts
       templates.test.ts
       theory.test.ts
+    playback/
+      PlaybackEngine.test.ts
 ```
 
 ---
@@ -326,6 +332,7 @@ gamecue/
 | T0010 — Chord / Pad Generator | Implemented | gamecue/t0010a-fix-chord-pad-voicings | N/A | Reapplied the original chord/pad generator with a wrapped-voicing fix so chord tones stay stacked above the root, with focused tests for octave-aware voicing |
 | T0011 — Melody / Motif Generator | Implemented | gamecue/t0011-melody-motif-generator | N/A | Added deterministic beat-based melody/motif generation driven by cue type, intensity, scale notes, and active chords, with focused Vitest coverage for in-key notes, strong-beat chord tones, timing bounds, and density differences |
 | T0012 — Full Project Generator | Implemented | gamecue/t0012-full-project-generator | N/A | Added deterministic `generateProject(settings)` composition, stable project metadata and mix defaults, Generate Cue wiring in app state, generated track/event summaries in the UI, and focused Vitest coverage for project shape, timing bounds, determinism, and serialization |
+| T0013 — PlaybackEngine Interface | Implemented | gamecue/t0012-full-project-generator | N/A | Added an engine-agnostic `PlaybackEngine` contract that depends only on project-model types, a playback barrel export, and focused tests proving a mock engine can load generated projects without any Tone.js dependency |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -336,13 +343,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: gamecue/t0012-full-project-generator
-Status: Complete for T0012 implementation
+Status: Complete for T0013 implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch implements T0012 across `src/core/generation`, `src/app`, `src/ui/controls`, `src/ui/tracks`, `src/ui/project`, `tests/core`, and `docs/Repo_Current_State.md`, composing the existing generators into a complete `GameCueProject` and wiring Generate Cue to update visible project/track summaries without adding playback, save/load, export, or Tone.js behavior.
+This branch now includes T0013 across `src/playback`, `tests/playback`, and `docs/Repo_Current_State.md`, adding an engine-agnostic `PlaybackEngine` interface for future playback adapters without adding Tone.js, scheduling, UI transport wiring, save/load, or export behavior.
 ```
 
 ---
@@ -373,7 +380,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0012 using `C:\Program Files\nodejs\npm.cmd`. The app now builds with Generate Cue wired to deterministic project generation, and Vitest covers project schema shape, one-section structure, four generated tracks, per-track mix defaults, beat-bound timing, cue-dependent event-count differences, determinism, and JSON serialization. Manual browser verification is still recommended for the visible Generate Cue flow.
+Build and test verification passed for T0013 using `C:\Program Files\nodejs\npm.cmd`. The app now includes an engine-agnostic `PlaybackEngine` contract exported from `src/playback`, and Vitest covers the ability to satisfy that interface with a mock object that loads a generated `GameCueProject` without importing Tone.js. Manual verification for this ticket is limited to contract inspection and command confirmation because no playback or UI wiring was added.
 ```
 
 ---
@@ -383,7 +390,7 @@ Build and test verification passed for T0012 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0012 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass.
+No functional implementation issues identified in T0013 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass.
 ```
 
 See:
@@ -411,7 +418,7 @@ Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation
 ```text
 src/playback exists: Yes
 Tone.js installed: No
-Status: Folder skeleton only
+Status: Engine-agnostic `PlaybackEngine` interface and barrel export implemented; `src/playback/tone` remains a placeholder-only folder
 ```
 
 ## 9.3 Project File Format
@@ -452,13 +459,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0013 — PlaybackEngine Interface.
+Start T0014 — Tone.js Instrument Factory.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0013-playbackengine-interface
+gamecue/t0014-tonejs-instrument-factory
 ```
 
 Recommended prompt source:
