@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { cueTypes, type CueSettings, type NoteEvent } from "../../src/core/model";
-import { generateChordPad, generateChordProgression } from "../../src/core/generation";
+import {
+  generateChordPad,
+  generateChordProgression,
+  type GeneratedChordProgression,
+} from "../../src/core/generation";
 
 function createSettings(overrides: Partial<CueSettings> = {}): CueSettings {
   return {
@@ -167,6 +171,46 @@ describe("generateChordPad", () => {
       expect(activeChord!.notes).toContain(stripOctave(event.pitch));
     }
   });
+
+  it("keeps wrapped chord tones above a B root", () => {
+    const settings = createSettings({ type: "investigation", key: "B", mode: "minor", bars: 1 });
+    const chordPad = generateChordPad({
+      settings,
+      chordProgression: createChordProgressionStub(settings, ["B", "D#", "F#"]),
+    });
+
+    expect(getPitchesAtBeat(chordPad.events, 0)).toEqual(["B3", "D#4", "F#4"]);
+  });
+
+  it("keeps wrapped chord tones above an A root", () => {
+    const settings = createSettings({ type: "investigation", key: "A", mode: "minor", bars: 1 });
+    const chordPad = generateChordPad({
+      settings,
+      chordProgression: createChordProgressionStub(settings, ["A", "C", "E"]),
+    });
+
+    expect(getPitchesAtBeat(chordPad.events, 0)).toEqual(["A3", "C4", "E4"]);
+  });
+
+  it("keeps non-wrapped triads in the base octave", () => {
+    const settings = createSettings({ type: "investigation", key: "C", mode: "major", bars: 1 });
+    const chordPad = generateChordPad({
+      settings,
+      chordProgression: createChordProgressionStub(settings, ["C", "E", "G"]),
+    });
+
+    expect(getPitchesAtBeat(chordPad.events, 0)).toEqual(["C3", "E3", "G3"]);
+  });
+
+  it("keeps the extra top voice above the highest wrapped chord tone", () => {
+    const settings = createSettings({ type: "menu_theme", key: "A", mode: "major", bars: 1 });
+    const chordPad = generateChordPad({
+      settings,
+      chordProgression: createChordProgressionStub(settings, ["A", "C", "E"]),
+    });
+
+    expect(getPitchesAtBeat(chordPad.events, 0)).toEqual(["A3", "C4", "E4", "E5"]);
+  });
 });
 
 function getSortedEvents(events: readonly NoteEvent[]): NoteEvent[] {
@@ -193,4 +237,37 @@ function getAverageDuration(events: readonly NoteEvent[]): number {
 
 function stripOctave(pitch: string): string {
   return pitch.replace(/\d+$/, "");
+}
+
+function getPitchesAtBeat(events: readonly NoteEvent[], startBeat: number): string[] {
+  return events
+    .filter((event) => event.startBeat === startBeat)
+    .map((event) => event.pitch);
+}
+
+function createChordProgressionStub(
+  settings: CueSettings,
+  notes: readonly string[],
+): GeneratedChordProgression {
+  return {
+    key: settings.key,
+    mode: settings.mode,
+    bars: settings.bars,
+    beatsPerBar: 4,
+    totalBeats: settings.bars * 4,
+    style: "minor",
+    chords: [
+      {
+        chordId: "chord_0001",
+        symbol: "i",
+        degree: 1,
+        root: notes[0] as GeneratedChordProgression["chords"][number]["root"],
+        quality: "minor",
+        notes: [...notes] as GeneratedChordProgression["chords"][number]["notes"],
+        startBeat: 0,
+        durationBeats: 4,
+        barIndex: 0,
+      },
+    ],
+  };
 }

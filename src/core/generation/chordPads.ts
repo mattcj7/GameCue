@@ -1,4 +1,5 @@
 import type { CueSettings, NoteEvent } from "../model";
+import { chromaticNotes } from "../theory";
 import type { CueTemplate } from "../templates";
 import { getCueTemplate } from "../templates";
 import {
@@ -292,15 +293,51 @@ function createChordHitEvents({
 }
 
 function createChordPitches(chord: GeneratedChord, includeTopVoice: boolean): string[] {
-  const basePitches = chord.notes.map((note) => `${note}${defaultChordOctave}`);
+  const basePitches = chord.notes.reduce<string[]>((pitches, note, index) => {
+    if (index === 0) {
+      return [`${note}${defaultChordOctave}`];
+    }
+
+    const previousPitch = pitches[pitches.length - 1];
+    const previousNote = stripOctave(previousPitch);
+    const previousOctave = getPitchOctave(previousPitch);
+    const nextOctave =
+      getChromaticIndex(note) <= getChromaticIndex(previousNote)
+        ? previousOctave + 1
+        : previousOctave;
+
+    return [...pitches, `${note}${nextOctave}`];
+  }, []);
 
   if (!includeTopVoice) {
     return basePitches;
   }
 
-  const topVoice = chord.notes[chord.notes.length - 1];
+  const topVoicePitch = basePitches[basePitches.length - 1];
 
-  return [...basePitches, `${topVoice}4`];
+  return [...basePitches, raisePitchByOctave(topVoicePitch)];
+}
+
+function getChromaticIndex(note: string): number {
+  return chromaticNotes.indexOf(note as (typeof chromaticNotes)[number]);
+}
+
+function stripOctave(pitch: string): string {
+  return pitch.replace(/\d+$/, "");
+}
+
+function getPitchOctave(pitch: string): number {
+  const octaveMatch = pitch.match(/(\d+)$/);
+
+  if (!octaveMatch) {
+    throw new RangeError(`Pitch is missing an octave: ${pitch}`);
+  }
+
+  return Number(octaveMatch[1]);
+}
+
+function raisePitchByOctave(pitch: string): string {
+  return `${stripOctave(pitch)}${getPitchOctave(pitch) + 1}`;
 }
 
 function getChordPadVelocity(
