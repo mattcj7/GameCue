@@ -31,11 +31,11 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, and core test runner implemented
-Last completed ticket: T0013 — PlaybackEngine Interface
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, and core test runner implemented
+Last completed ticket: T0014 — Tone.js Instrument Factory
 Current ticket: None
-Next recommended ticket: T0014 — Tone.js Instrument Factory
-Current branch: gamecue/t0012-full-project-generator
+Next recommended ticket: T0015 — Tone.js Scheduler
+Current branch: gamecue/t0014-tonejs-instrument-factory
 Repo initialized: Yes
 ```
 
@@ -64,17 +64,17 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, and focused Vitest coverage
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js instrument factory in `src/playback/tone`, and focused Vitest coverage
 Vite project created: Yes
 React app created: Yes
-Tone.js installed: No
+Tone.js installed: Yes
 Core model created: Yes
 Basic app layout created: Yes
 Cue controls UI created: Yes
 Music theory helpers created: Yes
 Cue template system created: Yes
 Generation system created: Yes
-Playback system created: Interface only
+Playback system created: Interface and Tone instrument factory
 Save/load created: No
 Export system created: No
 Tests created: Yes
@@ -147,6 +147,7 @@ Actual dependencies:
 ```text
 react
 react-dom
+tone
 vite
 typescript
 @vitejs/plugin-react
@@ -333,6 +334,7 @@ gamecue/
 | T0011 — Melody / Motif Generator | Implemented | gamecue/t0011-melody-motif-generator | N/A | Added deterministic beat-based melody/motif generation driven by cue type, intensity, scale notes, and active chords, with focused Vitest coverage for in-key notes, strong-beat chord tones, timing bounds, and density differences |
 | T0012 — Full Project Generator | Implemented | gamecue/t0012-full-project-generator | N/A | Added deterministic `generateProject(settings)` composition, stable project metadata and mix defaults, Generate Cue wiring in app state, generated track/event summaries in the UI, and focused Vitest coverage for project shape, timing bounds, determinism, and serialization |
 | T0013 — PlaybackEngine Interface | Implemented | gamecue/t0012-full-project-generator | N/A | Added an engine-agnostic `PlaybackEngine` contract that depends only on project-model types, a playback barrel export, and focused tests proving a mock engine can load generated projects without any Tone.js dependency |
+| T0014 — Tone.js Instrument Factory | Implemented | gamecue/t0014-tonejs-instrument-factory | N/A | Added isolated Tone.js instrument handles under `src/playback/tone`, installed `tone`, supported the initial drum/bass/pad/lead instrument ids, and added focused non-audio tests for supported ids, unsupported-id errors, disposal behavior, and Tone import isolation |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -342,14 +344,14 @@ gamecue/
 
 ```text
 Ticket: None
-Branch: gamecue/t0012-full-project-generator
-Status: Complete for T0013 implementation
+Branch: gamecue/t0014-tonejs-instrument-factory
+Status: Complete for T0014 implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch now includes T0013 across `src/playback`, `tests/playback`, and `docs/Repo_Current_State.md`, adding an engine-agnostic `PlaybackEngine` interface for future playback adapters without adding Tone.js, scheduling, UI transport wiring, save/load, or export behavior.
+This branch now includes T0014 across `src/playback/tone`, `tests/playback`, `package.json`, `package-lock.json`, and `docs/Repo_Current_State.md`, adding an isolated Tone.js instrument factory with disposal-safe drum and melodic handles without adding scheduler behavior, UI transport wiring, save/load, export, or project-model changes.
 ```
 
 ---
@@ -361,8 +363,16 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
+- git checkout main
+- git pull origin main
+- git branch -d gamecue/t0014-tonejs-instrument-factory
+- git checkout -b gamecue/t0014-tonejs-instrument-factory
+- & 'C:\Program Files\nodejs\npm.cmd' install tone
 - & 'C:\Program Files\nodejs\npm.cmd' run build
 - & 'C:\Program Files\nodejs\npm.cmd' test
+- rg -n -F 'from "tone"' src tests
+- rg -n -F "from 'tone'" src tests
+- rg -n "Tone\." src tests
 ```
 
 ## 7.2 Last Build Result
@@ -380,7 +390,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0013 using `C:\Program Files\nodejs\npm.cmd`. The app now includes an engine-agnostic `PlaybackEngine` contract exported from `src/playback`, and Vitest covers the ability to satisfy that interface with a mock object that loads a generated `GameCueProject` without importing Tone.js. Manual verification for this ticket is limited to contract inspection and command confirmation because no playback or UI wiring was added.
+Build and test verification passed for T0014 using `C:\Program Files\nodejs\npm.cmd`. Tone.js is now installed, `src/playback/tone/toneInstruments.ts` is the only source file importing from `tone`, and the factory supports `minimal_electronic_kit`, `sub_pulse`, `dark_pad`, and `simple_lead` via disposal-safe handles. Vitest now covers supported-id handling, unsupported-id errors, dispose behavior, and Tone import isolation through a mocked `tone` module, so no real audio playback, browser audio unlock, or user gesture is required. Manual verification for this ticket is limited to import-isolation inspection and command confirmation because no scheduler, playback engine wiring, or UI transport behavior was added.
 ```
 
 ---
@@ -390,7 +400,7 @@ Build and test verification passed for T0013 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0013 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass.
+No functional implementation issues identified in T0014 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass. `soft_pluck` and `ambient_texture` intentionally remain unsupported by the Tone factory and will still throw until a later playback ticket expands the instrument set.
 ```
 
 See:
@@ -417,8 +427,8 @@ Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation
 
 ```text
 src/playback exists: Yes
-Tone.js installed: No
-Status: Engine-agnostic `PlaybackEngine` interface and barrel export implemented; `src/playback/tone` remains a placeholder-only folder
+Tone.js installed: Yes
+Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js, and `src/playback/tone` now contains a Tone instrument factory plus supported-id metadata; scheduler, transport behavior, and a `TonePlaybackEngine` adapter are still pending
 ```
 
 ## 9.3 Project File Format
@@ -459,13 +469,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0014 — Tone.js Instrument Factory.
+Start T0015 — Tone.js Scheduler.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0014-tonejs-instrument-factory
+gamecue/t0015-tonejs-scheduler
 ```
 
 Recommended prompt source:
@@ -548,6 +558,65 @@ T0002 — Core Project Model
 
 Notes:
 App shell displays expected placeholder sections.
+```
+
+## Latest Update
+
+```text
+Update Date:
+2026-05-18
+
+Ticket completed:
+T0014 — Tone.js Instrument Factory
+
+Branch:
+gamecue/t0014-tonejs-instrument-factory
+
+Commit:
+Not created yet
+
+Files changed:
+- package.json
+- package-lock.json
+- src/playback/tone/toneInstrumentTypes.ts
+- src/playback/tone/toneInstruments.ts
+- tests/playback/toneInstrumentTypes.test.ts
+- tests/playback/toneInstruments.test.ts
+- docs/Repo_Current_State.md
+
+Commands run:
+- git checkout main
+- git pull origin main
+- git branch -d gamecue/t0014-tonejs-instrument-factory
+- git checkout -b gamecue/t0014-tonejs-instrument-factory
+- & 'C:\Program Files\nodejs\npm.cmd' install tone
+- & 'C:\Program Files\nodejs\npm.cmd' run build
+- & 'C:\Program Files\nodejs\npm.cmd' test
+- rg -n -F 'from "tone"' src tests
+- rg -n -F "from 'tone'" src tests
+- rg -n "Tone\." src tests
+
+Build result:
+Pass
+
+Test result:
+Pass
+
+Manual verification result:
+Pass. Tone import isolation audit found a single `from "tone"` import under `src/playback/tone/toneInstruments.ts`. Supported factory ids, unsupported-id errors, and disposal behavior are covered by mocked non-audio Vitest tests. No audio playback verification was performed because T0014 does not add scheduler, transport, or UI playback wiring.
+
+Known issues added:
+- Existing Vite React plugin deprecation warnings still appear during `npm test`.
+- `soft_pluck` and `ambient_texture` are intentionally unsupported and will throw if passed to `createToneInstrument`.
+
+Docs updated:
+- docs/Repo_Current_State.md
+
+Next recommended ticket:
+T0015 — Tone.js Scheduler
+
+Notes:
+The Tone factory returns disposal-safe drum-kit and melodic handles without changing project data shape or importing Tone.js outside `src/playback/tone`.
 ```
 
 ---
