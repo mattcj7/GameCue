@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, and core test runner implemented
-Last completed ticket: T0008 — Drum Pattern Generator
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, and core test runner implemented
+Last completed ticket: T0009 — Bassline Generator
 Current ticket: None
-Next recommended ticket: T0009 — Bassline Generator
+Next recommended ticket: T0010 — Chord / Pad Generator
 Current branch: Not created yet
 Repo initialized: Yes
 ```
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0008 adds deterministic beat-based drum pattern generation with cue-template-aware percussion styles and Vitest coverage for density, timing bounds, event typing, and sparse ambient behavior
+Source code status: T0009 adds deterministic beat-based bassline generation from chord roots with cue-template-aware rhythm styles, low-register pitch mapping, and focused Vitest coverage for timing, root following, and density differences
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -318,6 +318,7 @@ gamecue/
 | T0007 — Chord Progression Generator | Implemented | Not created | N/A | Added deterministic chord progression generation from cue settings and template profiles, with structured chord output fitted to cue bar counts |
 | T0007A — Add Core Test Runner | Implemented | Not created | N/A | Added Vitest, `test` and `test:watch` scripts, and focused unit tests for theory helpers, cue templates, and chord progression generation |
 | T0008 — Drum Pattern Generator | Implemented | Not created | N/A | Added deterministic beat-based drum event generation for five drum lanes with template-aware density differences and focused Vitest coverage |
+| T0009 — Bassline Generator | Implemented | Not created | N/A | Added deterministic beat-based bass note generation from chord roots with cue-aware rhythm profiles, low-register pitch mapping, and focused Vitest coverage |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -328,13 +329,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0007A
+Status: Complete for T0009
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0007A was completed without changing runtime app behavior, UI, playback, save/load, export, or core feature behavior beyond test coverage.
+T0009 was completed without changing runtime app behavior, UI, playback, save/load, export, melody generation, or chord/pad generation.
 ```
 
 ---
@@ -366,7 +367,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0007A. Vitest now covers C major and D minor theory helpers, cue template lookup/profile expectations, and chord progression generation timing/count behavior.
+Build and test verification passed for T0009 using `C:\Program Files\nodejs\npm.cmd` because `npm.cmd` was not on PATH in this shell. Vitest now covers bass event generation across cue types, low-register root following, timing bounds, deterministic sorting, and cue-density differences.
 ```
 
 ---
@@ -376,7 +377,7 @@ Build and test verification passed for T0007A. Vitest now covers C major and D m
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0007A from build and test verification.
+No functional implementation issues identified in T0009 from build and test verification.
 ```
 
 See:
@@ -445,13 +446,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0009 — Bassline Generator.
+Start T0010 — Chord / Pad Generator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0009-bassline-generator
+gamecue/t0010-chord-pad-generator
 ```
 
 Recommended prompt source:
