@@ -31,11 +31,11 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, and core test runner implemented
-Last completed ticket: T0009 — Bassline Generator
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, and core test runner implemented
+Last completed ticket: T0010 — Chord / Pad Generator
 Current ticket: None
-Next recommended ticket: T0010 — Chord / Pad Generator
-Current branch: Not created yet
+Next recommended ticket: T0011 — Melody / Motif Generator
+Current branch: gamecue/t0010a-fix-chord-pad-voicings
 Repo initialized: Yes
 ```
 
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: T0009 adds deterministic beat-based bassline generation from chord roots with cue-template-aware rhythm styles, low-register pitch mapping, and focused Vitest coverage for timing, root following, and density differences
+Source code status: T0010 is reapplied on this branch with the original chord/pad generator behavior plus a wrapped-voicing fix so stacked chord tones stay above the root in ascending mid-register order, with focused Vitest coverage for wrapped chords and octave-aware top voices
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: No
@@ -279,6 +279,8 @@ gamecue/
         templateLookup.ts
       generation/
         .gitkeep
+        basslines.ts
+        chordPads.ts
         chordProgressions.ts
         drumPatterns.ts
         index.ts
@@ -292,6 +294,8 @@ gamecue/
       shared/
   tests/
     core/
+      basslines.test.ts
+      chordPads.test.ts
       chordProgressions.test.ts
       drumPatterns.test.ts
       templates.test.ts
@@ -319,6 +323,7 @@ gamecue/
 | T0007A — Add Core Test Runner | Implemented | Not created | N/A | Added Vitest, `test` and `test:watch` scripts, and focused unit tests for theory helpers, cue templates, and chord progression generation |
 | T0008 — Drum Pattern Generator | Implemented | Not created | N/A | Added deterministic beat-based drum event generation for five drum lanes with template-aware density differences and focused Vitest coverage |
 | T0009 — Bassline Generator | Implemented | Not created | N/A | Added deterministic beat-based bass note generation from chord roots with cue-aware rhythm profiles, low-register pitch mapping, and focused Vitest coverage |
+| T0010 — Chord / Pad Generator | Implemented | gamecue/t0010a-fix-chord-pad-voicings | N/A | Reapplied the original chord/pad generator with a wrapped-voicing fix so chord tones stay stacked above the root, with focused tests for octave-aware voicing |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -329,13 +334,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: None
-Status: Complete for T0009
+Status: Complete for corrected T0010 reapply
 ```
 
 ## Active Ticket Notes
 
 ```text
-T0009 was completed without changing runtime app behavior, UI, playback, save/load, export, melody generation, or chord/pad generation.
+This branch reapplies T0010 and fixes wrapped chord voicings without changing UI, playback, save/load, export, melody generation, bassline behavior, drum generation behavior, or chord progression behavior.
 ```
 
 ---
@@ -347,7 +352,6 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- & 'C:\Program Files\nodejs\npm.cmd' install -D vitest
 - & 'C:\Program Files\nodejs\npm.cmd' run build
 - & 'C:\Program Files\nodejs\npm.cmd' test
 ```
@@ -367,7 +371,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0009 using `C:\Program Files\nodejs\npm.cmd` because `npm.cmd` was not on PATH in this shell. Vitest now covers bass event generation across cue types, low-register root following, timing bounds, deterministic sorting, and cue-density differences.
+Build and test verification passed for the corrected T0010 reapply using `C:\Program Files\nodejs\npm.cmd`. Vitest now covers chord/pad generation across cue types, timing bounds, deterministic sorting, wrapped chord voicings, and octave-aware top voice behavior.
 ```
 
 ---
@@ -377,7 +381,7 @@ Build and test verification passed for T0009 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0009 from build and test verification.
+No functional implementation issues identified in the corrected T0010 reapply from build and test verification.
 ```
 
 See:
@@ -446,13 +450,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0010 — Chord / Pad Generator.
+Start T0011 — Melody / Motif Generator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0010-chord-pad-generator
+gamecue/t0011-melody-motif-generator
 ```
 
 Recommended prompt source:
