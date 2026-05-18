@@ -20,7 +20,13 @@ function formatOptionLabel(value: string): string {
     .join(" ");
 }
 
+function isValidBarCount(bars: number): boolean {
+  return Number.isFinite(bars) && Number.isInteger(bars) && bars >= 1;
+}
+
 export function CueControls({ settings, onSettingChange, onGenerateCue }: CueControlsProps) {
+  const hasValidBars = isValidBarCount(settings.bars);
+
   const handleBpmChange = (value: string) => {
     const nextBpm = Number.parseInt(value, 10);
 
@@ -145,23 +151,31 @@ export function CueControls({ settings, onSettingChange, onGenerateCue }: CueCon
           <label className="field">
             <span className="field-label">Bars</span>
             <input
-              className="field-input"
-              type="number"
-              min={1}
-              step={1}
-              value={settings.bars}
-              onChange={(event) => handleBarsChange(event.target.value)}
-            />
-          </label>
+            className="field-input"
+            type="number"
+            min={1}
+            step={1}
+            value={settings.bars}
+            aria-invalid={!hasValidBars}
+            onChange={(event) => handleBarsChange(event.target.value)}
+          />
+        </label>
         </div>
 
-        <button type="button" className="placeholder-button primary-button" onClick={onGenerateCue}>
+        <button
+          type="button"
+          className="placeholder-button primary-button"
+          disabled={!hasValidBars}
+          aria-disabled={!hasValidBars}
+          onClick={onGenerateCue}
+        >
           Generate Cue
         </button>
 
         <p className="field-note">
-          Time signature is fixed at {settings.timeSignature} for now. Generation is available,
-          while playback remains out of scope in this ticket.
+          {!hasValidBars
+            ? "Bars must be a whole number of at least 1 before you can generate a cue."
+            : `Time signature is fixed at ${settings.timeSignature} for now. Generation is available, while playback remains out of scope in this ticket.`}
         </p>
       </form>
     </section>

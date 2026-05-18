@@ -19,6 +19,10 @@ const defaultCueSettings: CueSettings = {
   timeSignature: timeSignatures[0],
 };
 
+function hasValidBarCount(settings: CueSettings): boolean {
+  return Number.isFinite(settings.bars) && Number.isInteger(settings.bars) && settings.bars >= 1;
+}
+
 function App() {
   const [cueSettings, setCueSettings] = useState<CueSettings>(defaultCueSettings);
   const [project, setProject] = useState<GameCueProject | null>(null);
@@ -34,6 +38,10 @@ function App() {
   };
 
   const handleGenerateCue = () => {
+    if (!hasValidBarCount(cueSettings)) {
+      return;
+    }
+
     setProject(generateProject(cueSettings));
   };
 

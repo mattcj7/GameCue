@@ -122,6 +122,18 @@ describe("generateProject", () => {
     expect(secondProject).toEqual(firstProject);
   });
 
+  it("rejects zero bars with a clear RangeError", () => {
+    expect(() => generateProject(createSettings({ bars: 0 }))).toThrowError(
+      new RangeError("Project generation requires bars to be a positive integer. Received: 0."),
+    );
+  });
+
+  it("rejects negative bars with a clear RangeError", () => {
+    expect(() => generateProject(createSettings({ bars: -4 }))).toThrowError(
+      new RangeError("Project generation requires bars to be a positive integer. Received: -4."),
+    );
+  });
+
   it("returns plain JSON-serializable data", () => {
     const project = generateProject(
       createSettings({ type: "menu_theme", mood: "hopeful", key: "C", mode: "major" }),

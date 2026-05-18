@@ -16,6 +16,8 @@ import { generateMelody } from "./melodies";
 const deterministicProjectTimestamp = "2026-05-15T00:00:00.000Z";
 
 export function generateProject(settings: CueSettings): GameCueProject {
+  validateProjectGenerationSettings(settings);
+
   const template = getCueTemplate(settings.type);
   const chordProgression = generateChordProgression({ settings, template });
   const drumPattern = generateDrumPattern({ settings, template });
@@ -75,6 +77,14 @@ export function generateProject(settings: CueSettings): GameCueProject {
     tracks,
     mix: createMixSettings(),
   };
+}
+
+function validateProjectGenerationSettings(settings: CueSettings): void {
+  if (!Number.isFinite(settings.bars) || !Number.isInteger(settings.bars) || settings.bars < 1) {
+    throw new RangeError(
+      `Project generation requires bars to be a positive integer. Received: ${settings.bars}.`,
+    );
+  }
 }
 
 function createTrack({
