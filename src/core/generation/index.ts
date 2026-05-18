@@ -3,3 +3,4 @@ export * from "./chordPads";
 export * from "./chordProgressions";
 export * from "./drumPatterns";
 export * from "./melodies";
+export * from "./projects";

@@ -1,7 +1,8 @@
-import type { CueSettings } from "../../core/model";
+import type { CueSettings, GameCueProject } from "../../core/model";
 
 export interface ProjectSummaryProps {
   settings: CueSettings;
+  project: GameCueProject | null;
 }
 
 function formatOptionLabel(value: string): string {
@@ -11,7 +12,9 @@ function formatOptionLabel(value: string): string {
     .join(" ");
 }
 
-export function ProjectSummary({ settings }: ProjectSummaryProps) {
+export function ProjectSummary({ settings, project }: ProjectSummaryProps) {
+  const totalEvents =
+    project?.tracks.reduce((eventCount, track) => eventCount + track.events.length, 0) ?? 0;
   const summaryItems = [
     {
       label: "Cue",
@@ -28,6 +31,17 @@ export function ProjectSummary({ settings }: ProjectSummaryProps) {
     {
       label: "Structure",
       value: `${settings.bars} bars / ${settings.timeSignature}`,
+    },
+    {
+      label: "Project",
+      value: project?.title ?? "Not generated yet",
+    },
+    {
+      label: "Output",
+      value:
+        project === null
+          ? "0 tracks / 0 events"
+          : `${project.tracks.length} tracks / ${totalEvents} events`,
     },
   ] as const;
 
