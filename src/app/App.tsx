@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { generateProject } from "../core/generation";
-import type { CueSettings, GameCueProject } from "../core/model";
+import type { CueSettings, GameCueProject, TrackId } from "../core/model";
 import { timeSignatures } from "../core/model";
 import type { PlaybackEngine } from "../playback";
 import { TonePlaybackEngine } from "../playback/tone";
@@ -27,9 +27,17 @@ function hasValidBarCount(settings: CueSettings): boolean {
 
 type TransportStatus = "No project" | "Ready" | "Playing" | "Stopped" | "Error";
 
+interface TrackPlaybackState {
+  muted: boolean;
+  solo: boolean;
+}
+
+type TrackPlaybackStateMap = Record<TrackId, TrackPlaybackState>;
+
 function App() {
   const [cueSettings, setCueSettings] = useState<CueSettings>(defaultCueSettings);
   const [project, setProject] = useState<GameCueProject | null>(null);
+  const [trackPlaybackState, setTrackPlaybackState] = useState<TrackPlaybackStateMap>({});
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoopEnabled, setIsLoopEnabled] = useState(false);
   const [transportStatus, setTransportStatus] = useState<TransportStatus>("No project");
@@ -66,6 +74,7 @@ function App() {
     }
 
     const nextProject = generateProject(cueSettings);
+    const nextTrackPlaybackState = createTrackPlaybackStateMap(nextProject);
 
     try {
       if (playbackEngineRef.current !== null) {
@@ -73,12 +82,14 @@ function App() {
       }
 
       setProject(nextProject);
+      setTrackPlaybackState(nextTrackPlaybackState);
       projectNeedsLoadRef.current = true;
       setIsPlaying(false);
       setTransportError(null);
       setTransportStatus("Ready");
     } catch (error) {
       setProject(nextProject);
+      setTrackPlaybackState(nextTrackPlaybackState);
       projectNeedsLoadRef.current = true;
       setIsPlaying(false);
       setTransportError(getErrorMessage(error));
@@ -97,6 +108,7 @@ function App() {
       if (projectNeedsLoadRef.current) {
         await playbackEngine.loadProject(project);
         playbackEngine.setLoop(isLoopEnabled);
+        applyTrackPlaybackState(playbackEngine, trackPlaybackState);
         projectNeedsLoadRef.current = false;
       }
 
@@ -155,11 +167,69 @@ function App() {
     }
   };
 
+  const handleToggleTrackMute = (trackId: TrackId) => {
+    const currentTrackState = trackPlaybackState[trackId];
+
+    if (currentTrackState === undefined) {
+      return;
+    }
+
+    const nextMuted = !currentTrackState.muted;
+
+    setTrackPlaybackState((currentTrackPlaybackState) => ({
+      ...currentTrackPlaybackState,
+      [trackId]: {
+        ...currentTrackPlaybackState[trackId],
+        muted: nextMuted,
+      },
+    }));
+
+    try {
+      if (playbackEngineRef.current !== null) {
+        playbackEngineRef.current.setTrackMuted(trackId, nextMuted);
+      }
+
+      setTransportError(null);
+    } catch (error) {
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
+  };
+
+  const handleToggleTrackSolo = (trackId: TrackId) => {
+    const currentTrackState = trackPlaybackState[trackId];
+
+    if (currentTrackState === undefined) {
+      return;
+    }
+
+    const nextSolo = !currentTrackState.solo;
+
+    setTrackPlaybackState((currentTrackPlaybackState) => ({
+      ...currentTrackPlaybackState,
+      [trackId]: {
+        ...currentTrackPlaybackState[trackId],
+        solo: nextSolo,
+      },
+    }));
+
+    try {
+      if (playbackEngineRef.current !== null) {
+        playbackEngineRef.current.setTrackSolo(trackId, nextSolo);
+      }
+
+      setTransportError(null);
+    } catch (error) {
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
+  };
+
   return (
     <main className="app-shell">
       <header className="panel app-header">
         <div className="app-header-copy">
-          <p className="eyebrow">T0016 - Play / Stop / Loop Controls</p>
+          <p className="eyebrow">T0017 - Track Mute / Solo</p>
           <h1>GameCue</h1>
           <p className="tagline">Generate loopable game music cues for game projects.</p>
         </div>
@@ -176,7 +246,12 @@ function App() {
         </aside>
 
         <section className="panel main-panel">
-          <TrackList project={project} />
+          <TrackList
+            project={project}
+            trackPlaybackState={trackPlaybackState}
+            onToggleTrackMute={handleToggleTrackMute}
+            onToggleTrackSolo={handleToggleTrackSolo}
+          />
         </section>
       </section>
 
@@ -202,6 +277,18 @@ function App() {
 
 export default App;
 
+function createTrackPlaybackStateMap(project: GameCueProject): TrackPlaybackStateMap {
+  return Object.fromEntries(
+    project.tracks.map((track) => [
+      track.id,
+      {
+        muted: track.muted,
+        solo: track.solo,
+      },
+    ]),
+  ) as TrackPlaybackStateMap;
+}
+
 function getPlaybackEngine(
   playbackEngineRef: MutableRefObject<PlaybackEngine | null>,
   isLoopEnabled: boolean,
@@ -213,6 +300,16 @@ function getPlaybackEngine(
   }
 
   return playbackEngineRef.current;
+}
+
+function applyTrackPlaybackState(
+  playbackEngine: PlaybackEngine,
+  trackPlaybackState: TrackPlaybackStateMap,
+): void {
+  for (const [trackId, state] of Object.entries(trackPlaybackState)) {
+    playbackEngine.setTrackMuted(trackId, state.muted);
+    playbackEngine.setTrackSolo(trackId, state.solo);
+  }
 }
 
 function getErrorMessage(error: unknown): string {

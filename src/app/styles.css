@@ -294,7 +294,8 @@ textarea {
 }
 
 .placeholder-button,
-.placeholder-chip {
+.placeholder-chip,
+.track-action-button {
   padding: 0.72rem 1rem;
 }
 
@@ -302,9 +303,31 @@ textarea {
   cursor: pointer;
 }
 
-.placeholder-chip {
+.placeholder-chip,
+.track-action-button {
   padding: 0.38rem 0.7rem;
   font-size: 0.85rem;
+}
+
+.track-action-button {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.track-action-button[aria-pressed="true"],
+.track-action-active {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.24), rgba(56, 189, 248, 0.14));
+  color: var(--color-accent);
+}
+
+.track-stat-active {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--color-accent);
+  background: rgba(56, 189, 248, 0.16);
 }
 
 .transport-header {
