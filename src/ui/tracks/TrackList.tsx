@@ -1,4 +1,4 @@
-import type { GameCueProject } from "../../core/model";
+import type { GameCueProject, TrackId } from "../../core/model";
 
 const placeholderTracks = [
   {
@@ -25,9 +25,17 @@ const placeholderTracks = [
 
 export interface TrackListProps {
   project: GameCueProject | null;
+  trackPlaybackState: Record<TrackId, { muted: boolean; solo: boolean }>;
+  onToggleTrackMute: (trackId: TrackId) => void;
+  onToggleTrackSolo: (trackId: TrackId) => void;
 }
 
-export function TrackList({ project }: TrackListProps) {
+export function TrackList({
+  project,
+  trackPlaybackState,
+  onToggleTrackMute,
+  onToggleTrackSolo,
+}: TrackListProps) {
   if (project === null) {
     return (
       <section aria-labelledby="track-list-title">
@@ -81,35 +89,61 @@ export function TrackList({ project }: TrackListProps) {
       </div>
 
       <div className="track-list" role="list" aria-label="Generated track list">
-        {project.tracks.map((track) => (
-          <article key={track.id} className="track-card" role="listitem">
-            <div className="track-copy">
-              <h3>{track.name}</h3>
-              <p className="track-copy-meta">
-                {track.instrument} · {track.events.length} events
-              </p>
-            </div>
-            <div className="track-meta">
-              <span className="track-type">{track.type}</span>
-              <div className="track-stat-list" aria-label={`${track.name} track status`}>
-                <span className="track-stat">{track.muted ? "Muted" : "Live"}</span>
-                <span className="track-stat">{track.locked ? "Locked" : "Unlocked"}</span>
+        {project.tracks.map((track) => {
+          const currentTrackPlaybackState = trackPlaybackState[track.id] ?? {
+            muted: track.muted,
+            solo: track.solo,
+          };
+
+          return (
+            <article key={track.id} className="track-card" role="listitem">
+              <div className="track-copy">
+                <h3>{track.name}</h3>
+                <p className="track-copy-meta">
+                  {track.instrument} · {track.events.length} events
+                </p>
               </div>
-              <div className="track-actions" aria-label={`${track.name} placeholder actions`}>
-                <button type="button" className="placeholder-chip" disabled>
-                  Mute
-                </button>
-                <button type="button" className="placeholder-chip" disabled>
-                  Solo
-                </button>
-                <button type="button" className="placeholder-chip" disabled>
-                  Regen
-                </button>
+              <div className="track-meta">
+                <span className="track-type">{track.type}</span>
+                <div className="track-stat-list" aria-label={`${track.name} track status`}>
+                  <span className="track-stat">
+                    {currentTrackPlaybackState.muted ? "Muted" : "Live"}
+                  </span>
+                  {currentTrackPlaybackState.solo ? (
+                    <span className="track-stat track-stat-active">Soloed</span>
+                  ) : null}
+                  <span className="track-stat">{track.locked ? "Locked" : "Unlocked"}</span>
+                </div>
+                <div className="track-actions" aria-label={`${track.name} track actions`}>
+                  <button
+                    type="button"
+                    className={getTrackActionClassName(currentTrackPlaybackState.muted)}
+                    aria-pressed={currentTrackPlaybackState.muted}
+                    onClick={() => onToggleTrackMute(track.id)}
+                  >
+                    {currentTrackPlaybackState.muted ? "Muted" : "Mute"}
+                  </button>
+                  <button
+                    type="button"
+                    className={getTrackActionClassName(currentTrackPlaybackState.solo)}
+                    aria-pressed={currentTrackPlaybackState.solo}
+                    onClick={() => onToggleTrackSolo(track.id)}
+                  >
+                    {currentTrackPlaybackState.solo ? "Soloed" : "Solo"}
+                  </button>
+                  <button type="button" className="placeholder-chip" disabled>
+                    Regen
+                  </button>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
+}
+
+function getTrackActionClassName(isActive: boolean): string {
+  return isActive ? "track-action-button track-action-active" : "track-action-button";
 }
