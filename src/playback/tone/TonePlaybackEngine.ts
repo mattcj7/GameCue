@@ -18,6 +18,9 @@ export class TonePlaybackEngine implements PlaybackEngine {
   private scheduledEventIds: number[] = [];
   private project: GameCueProject | null = null;
   private loopEnabled = true;
+  private loadTokenCounter = 0;
+  private loadedProjectToken = 0;
+  private activeSessionLoadToken = 0;
   private playbackActive = false;
   private playbackTransitionId = 0;
   private disposed = false;
@@ -32,7 +35,9 @@ export class TonePlaybackEngine implements PlaybackEngine {
     this.trackSoloState.clear();
 
     try {
+      const loadToken = this.allocateLoadToken();
       this.project = project;
+      this.loadedProjectToken = loadToken;
       this.transport.bpm.value = project.cue.bpm;
       this.transport.loopStart = 0;
       this.transport.loopEnd = getLoopEndTime(project.cue.bars);
@@ -53,6 +58,7 @@ export class TonePlaybackEngine implements PlaybackEngine {
             instrument,
             transport: this.transport,
             isPlaybackActive: () => this.playbackActive,
+            isCurrentLoadActive: () => this.activeSessionLoadToken === loadToken,
             isTrackAudible: (trackId) => this.isTrackAudible(trackId),
           }),
         );
@@ -77,12 +83,14 @@ export class TonePlaybackEngine implements PlaybackEngine {
     if (
       this.project === null ||
       this.playbackActive ||
+      this.loadedProjectToken === 0 ||
       playTransitionId !== this.playbackTransitionId
     ) {
       return;
     }
 
     this.playbackActive = true;
+    this.activeSessionLoadToken = this.loadedProjectToken;
     this.transport.start();
   }
 
@@ -159,11 +167,18 @@ export class TonePlaybackEngine implements PlaybackEngine {
     }
 
     this.project = null;
+    this.loadedProjectToken = 0;
   }
 
   private deactivatePlayback(): void {
     this.playbackActive = false;
+    this.activeSessionLoadToken = 0;
     this.playbackTransitionId += 1;
+  }
+
+  private allocateLoadToken(): number {
+    this.loadTokenCounter += 1;
+    return this.loadTokenCounter;
   }
 
   private clearScheduledEvents(): void {

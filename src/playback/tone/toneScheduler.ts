@@ -19,6 +19,7 @@ export interface ScheduleTrackEventsOptions {
   instrument: ToneInstrumentHandle;
   transport: ToneTransportScheduler;
   isPlaybackActive: () => boolean;
+  isCurrentLoadActive: () => boolean;
   isTrackAudible: (trackId: TrackId) => boolean;
 }
 
@@ -72,11 +73,16 @@ export function scheduleTrackEvents({
   instrument,
   transport,
   isPlaybackActive,
+  isCurrentLoadActive,
   isTrackAudible,
 }: ScheduleTrackEventsOptions): number[] {
   return track.events.map((event) =>
     transport.schedule((time) => {
       if (!isPlaybackActive()) {
+        return;
+      }
+
+      if (!isCurrentLoadActive()) {
         return;
       }
 

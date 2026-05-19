@@ -348,6 +348,54 @@ describe("TonePlaybackEngine", () => {
     expect(mockedState.transportState.stopCalls.length).toBeGreaterThanOrEqual(2);
   });
 
+  it("ignores stale callbacks from an older load when the new load reuses the same track id", async () => {
+    const engine = new TonePlaybackEngine();
+    const firstProject = createProject({
+      projectId: "project_first",
+      tracks: [
+        createTrack({
+          id: "track_melody",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_first", type: "note", pitch: "C4" })],
+        }),
+      ],
+    });
+    const secondProject = createProject({
+      projectId: "project_second",
+      tracks: [
+        createTrack({
+          id: "track_melody",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_second", type: "note", pitch: "G4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(firstProject);
+
+    const staleCallback = mockedState.transportState.scheduledEvents[0]?.callback;
+    const staleHandle = mockedState.instrumentState.handles[0];
+
+    await engine.loadProject(secondProject);
+    await engine.play();
+
+    const currentCallback = mockedState.transportState.scheduledEvents[0]?.callback;
+    const currentHandle = mockedState.instrumentState.handles.at(-1);
+
+    staleCallback?.("stale-time");
+    currentCallback?.("current-time");
+
+    expect(staleHandle?.dispose).toHaveBeenCalledTimes(1);
+    expect(staleHandle?.triggerAttackRelease?.mock.calls).toEqual([]);
+    expect(currentHandle?.triggerAttackRelease?.mock.calls).toEqual([
+      ["G4", "1*4n", "current-time", 0.8],
+    ]);
+  });
+
   it("keeps stop and pause safe across repeated calls", async () => {
     const engine = new TonePlaybackEngine();
     const project = createProject({
