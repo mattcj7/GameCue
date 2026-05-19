@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { generateProject } from "../core/generation";
 import type { CueSettings, GameCueProject } from "../core/model";
 import { timeSignatures } from "../core/model";
+import type { PlaybackEngine } from "../playback";
+import { TonePlaybackEngine } from "../playback/tone";
 import { CueControls } from "../ui/controls/CueControls";
 import { TransportControls } from "../ui/controls/TransportControls";
 import { ProjectSummary } from "../ui/project/ProjectSummary";
@@ -23,9 +25,30 @@ function hasValidBarCount(settings: CueSettings): boolean {
   return Number.isFinite(settings.bars) && Number.isInteger(settings.bars) && settings.bars >= 1;
 }
 
+type TransportStatus = "No project" | "Ready" | "Playing" | "Stopped" | "Error";
+
 function App() {
   const [cueSettings, setCueSettings] = useState<CueSettings>(defaultCueSettings);
   const [project, setProject] = useState<GameCueProject | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [transportStatus, setTransportStatus] = useState<TransportStatus>("No project");
+  const [transportError, setTransportError] = useState<string | null>(null);
+
+  const playbackEngineRef = useRef<PlaybackEngine | null>(null);
+  const projectNeedsLoadRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      const playbackEngine = playbackEngineRef.current;
+      playbackEngineRef.current = null;
+      projectNeedsLoadRef.current = false;
+
+      if (playbackEngine !== null) {
+        void playbackEngine.dispose();
+      }
+    };
+  }, []);
 
   const handleCueSettingChange = <Field extends keyof CueSettings>(
     field: Field,
@@ -37,19 +60,106 @@ function App() {
     }));
   };
 
-  const handleGenerateCue = () => {
+  const handleGenerateCue = async () => {
     if (!hasValidBarCount(cueSettings)) {
       return;
     }
 
-    setProject(generateProject(cueSettings));
+    const nextProject = generateProject(cueSettings);
+
+    try {
+      if (playbackEngineRef.current !== null) {
+        await playbackEngineRef.current.stop();
+      }
+
+      setProject(nextProject);
+      projectNeedsLoadRef.current = true;
+      setIsPlaying(false);
+      setTransportError(null);
+      setTransportStatus("Ready");
+    } catch (error) {
+      setProject(nextProject);
+      projectNeedsLoadRef.current = true;
+      setIsPlaying(false);
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
+  };
+
+  const handlePlay = async () => {
+    if (project === null) {
+      return;
+    }
+
+    try {
+      const playbackEngine = getPlaybackEngine(playbackEngineRef, isLoopEnabled);
+
+      if (projectNeedsLoadRef.current) {
+        await playbackEngine.loadProject(project);
+        playbackEngine.setLoop(isLoopEnabled);
+        projectNeedsLoadRef.current = false;
+      }
+
+      await playbackEngine.play();
+      setIsPlaying(true);
+      setTransportError(null);
+      setTransportStatus("Playing");
+    } catch (error) {
+      setIsPlaying(false);
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
+  };
+
+  const handleStop = async () => {
+    if (project === null) {
+      return;
+    }
+
+    try {
+      if (playbackEngineRef.current !== null) {
+        await playbackEngineRef.current.stop();
+      }
+
+      setIsPlaying(false);
+      setTransportError(null);
+      setTransportStatus("Stopped");
+    } catch (error) {
+      setIsPlaying(false);
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
+  };
+
+  const handleToggleLoop = () => {
+    if (project === null) {
+      return;
+    }
+
+    const nextLoopEnabled = !isLoopEnabled;
+    setIsLoopEnabled(nextLoopEnabled);
+
+    try {
+      if (playbackEngineRef.current !== null) {
+        playbackEngineRef.current.setLoop(nextLoopEnabled);
+      }
+
+      if (transportStatus === "No project") {
+        setTransportStatus("Ready");
+      }
+
+      setTransportError(null);
+    } catch (error) {
+      setTransportError(getErrorMessage(error));
+      setTransportStatus("Error");
+    }
   };
 
   return (
     <main className="app-shell">
       <header className="panel app-header">
         <div className="app-header-copy">
-          <p className="eyebrow">T0012 - Full Project Generator</p>
+          <p className="eyebrow">T0016 - Play / Stop / Loop Controls</p>
           <h1>GameCue</h1>
           <p className="tagline">Generate loopable game music cues for game projects.</p>
         </div>
@@ -71,7 +181,16 @@ function App() {
       </section>
 
       <section className="panel transport-panel">
-        <TransportControls />
+        <TransportControls
+          hasProject={project !== null}
+          isPlaying={isPlaying}
+          isLoopEnabled={isLoopEnabled}
+          statusText={transportStatus}
+          errorText={transportError}
+          onPlay={handlePlay}
+          onStop={handleStop}
+          onToggleLoop={handleToggleLoop}
+        />
       </section>
 
       <section className="panel project-panel">
@@ -82,3 +201,24 @@ function App() {
 }
 
 export default App;
+
+function getPlaybackEngine(
+  playbackEngineRef: MutableRefObject<PlaybackEngine | null>,
+  isLoopEnabled: boolean,
+): PlaybackEngine {
+  if (playbackEngineRef.current === null) {
+    const playbackEngine = new TonePlaybackEngine();
+    playbackEngine.setLoop(isLoopEnabled);
+    playbackEngineRef.current = playbackEngine;
+  }
+
+  return playbackEngineRef.current;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.length > 0) {
+    return error.message;
+  }
+
+  return "Playback is unavailable right now.";
+}

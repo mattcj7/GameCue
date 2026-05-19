@@ -151,15 +151,15 @@ export function CueControls({ settings, onSettingChange, onGenerateCue }: CueCon
           <label className="field">
             <span className="field-label">Bars</span>
             <input
-            className="field-input"
-            type="number"
-            min={1}
-            step={1}
-            value={settings.bars}
-            aria-invalid={!hasValidBars}
-            onChange={(event) => handleBarsChange(event.target.value)}
-          />
-        </label>
+              className="field-input"
+              type="number"
+              min={1}
+              step={1}
+              value={settings.bars}
+              aria-invalid={!hasValidBars}
+              onChange={(event) => handleBarsChange(event.target.value)}
+            />
+          </label>
         </div>
 
         <button
@@ -175,7 +175,7 @@ export function CueControls({ settings, onSettingChange, onGenerateCue }: CueCon
         <p className="field-note">
           {!hasValidBars
             ? "Bars must be a whole number of at least 1 before you can generate a cue."
-            : `Time signature is fixed at ${settings.timeSignature} for now. Generation is available, while playback remains out of scope in this ticket.`}
+            : `Time signature is fixed at ${settings.timeSignature} for now. Generate a cue, then use transport to play, stop, or loop the latest project.`}
         </p>
       </form>
     </section>

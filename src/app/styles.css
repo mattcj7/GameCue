@@ -298,6 +298,10 @@ textarea {
   padding: 0.72rem 1rem;
 }
 
+.placeholder-button {
+  cursor: pointer;
+}
+
 .placeholder-chip {
   padding: 0.38rem 0.7rem;
   font-size: 0.85rem;
@@ -308,6 +312,20 @@ textarea {
   justify-content: space-between;
   gap: var(--space-4);
   align-items: flex-start;
+}
+
+.transport-feedback,
+.transport-error {
+  margin: var(--space-4) 0 0;
+  font-size: 0.95rem;
+}
+
+.transport-feedback {
+  color: var(--color-text-muted);
+}
+
+.transport-error {
+  color: #fca5a5;
 }
 
 @media (max-width: 900px) {
