@@ -110,6 +110,8 @@ As of 2026-05-16, the following starter skills exist in the repo:
 
 These five created skills were merged during T0003. They are accepted as intentional workflow support and should remain in the repo.
 
+After T0018, T0018B, and T0018A, the existing `gamecue-audio-playback`, `gamecue-manual-verification`, and `gamecue-save-load` skills are the preferred place for stronger playback and save/load guardrails. Do not create duplicate skills for audio manual verification or save/load serialization unless a future workflow proves the existing skills are insufficient.
+
 Future skills should be added through explicit docs/workflow tickets.
 
 ---
@@ -260,11 +262,16 @@ Use for:
 Should enforce:
 
 - Tone.js imports only under `src/playback/tone`.
+- UI/app may use playback interfaces/adapters but must not import raw `tone`.
 - Project data remains source of truth.
 - Dispose old Tone objects.
 - Avoid overlapping audio.
+- Invalidate stale queued callbacks after reload/regenerate, including reused track IDs.
+- Repeated Stop should not retrigger sound.
+- Repeated Play/Stop should not stack audio.
 - Keep UI from owning audio scheduling logic.
 - Respect BPM, mute, solo, and loop length.
+- Require human audible verification when audio behavior is part of acceptance criteria; headless checks are not enough.
 
 Best for tickets:
 
@@ -307,9 +314,13 @@ Should enforce:
 - `.gamecue.json` is source of truth.
 - Use plain JSON-compatible data only.
 - Do not serialize Tone.js objects.
+- Do not serialize playback engine state, transport state, React UI-only state, or runtime audio resources.
+- Keep serializer/validator core under `src/core/serialization`.
+- Keep serializer core free of playback, Tone.js, React, DOM, and browser file APIs.
 - Validate before applying loaded data.
 - Invalid files should not crash the app.
 - Failed loads should not destroy current state.
+- Keep browser save/load UI separate from serializer core unless the ticket explicitly combines them.
 
 Best for tickets:
 
@@ -439,7 +450,8 @@ Should enforce:
 - Expected results.
 - Failure signs.
 - 5–10 minute checklist.
-- Audio confirmation steps when relevant.
+- Human audible confirmation when audio behavior is in scope.
+- Windows-safe command fallbacks when `npm` is unreliable on `PATH`.
 
 Best for:
 
@@ -587,6 +599,8 @@ gamecue-save-load
 
 This gives us enough support for T0001 through T0023.
 
+These existing skills were strengthened after T0018/T0018B to cover audible playback regression checks and engine-agnostic save/load guardrails before T0019–T0023.
+
 ---
 
 # 6. Prompt Selection Cheat Sheet
@@ -625,13 +639,13 @@ Use the gamecue-core-generation skill if available. Keep generation pure, engine
 ## Playback
 
 ```text
-Use the gamecue-audio-playback skill if available. Keep Tone.js isolated under src/playback/tone and include cleanup/disposal behavior.
+Use the gamecue-audio-playback skill if available. Keep Tone.js isolated under src/playback/tone, include cleanup/disposal behavior, and require human audible verification when audio behavior is in scope.
 ```
 
 ## Save / Load
 
 ```text
-Use the gamecue-save-load skill if available. Preserve .gamecue.json as plain validated project data.
+Use the gamecue-save-load skill if available. Preserve .gamecue.json as plain validated project data and keep serializer core engine-agnostic.
 ```
 
 ## UI
@@ -649,7 +663,7 @@ Use the gamecue-export skill if available. Export from GameCueProject data, not 
 ## Verification
 
 ```text
-Use the gamecue-manual-verification skill if available. Provide a practical 5–10 minute manual checklist.
+Use the gamecue-manual-verification skill if available. Provide a practical 5–10 minute manual checklist and require human audible confirmation when playback behavior is part of acceptance criteria.
 ```
 
 ## Docs

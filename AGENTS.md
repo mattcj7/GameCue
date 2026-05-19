@@ -290,6 +290,8 @@ Project data should include:
 Do not save:
 
 - Tone.js objects
+- Playback engine state
+- Transport state
 - Functions
 - Class instances that cannot serialize cleanly
 - DOM references
@@ -343,6 +345,7 @@ Playback should:
 - Respect mute/solo state.
 - Dispose old scheduled audio when loading or regenerating.
 - Avoid overlapping old and new projects.
+- Invalidate queued callbacks from previously loaded projects after reload/regenerate.
 - Avoid memory leaks.
 
 Tone.js imports must stay under:
@@ -549,6 +552,8 @@ Manual verification should include:
 - Expected results
 - Failure signs to watch for
 - Whether audio confirmation is needed
+
+For playback tickets whose acceptance criteria depend on audible behavior, human audio verification is required. Headless/browser-only checks are not enough.
 
 Keep verification practical enough to complete in 5–10 minutes.
 

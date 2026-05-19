@@ -27,16 +27,38 @@ Saved project files must contain plain JSON-compatible data only.
 Do not serialize:
 
 - Tone.js objects
+- Playback engine state
+- Transport state
 - Browser audio objects
+- Audio graph/runtime resources
 - DOM objects
-- React component state internals
+- React UI-only state
 - Functions
 - Class instances that cannot round-trip cleanly through JSON
 - Temporary runtime caches
 
+## Serializer Core Boundary
+
+Serializer and validator core logic belongs under:
+
+```text
+src/core/serialization/
+```
+
+Core serialization code must not import:
+
+- `src/playback/*`
+- Tone.js
+- React
+- DOM APIs
+- Browser file APIs
+
+Browser save/load UI belongs in later UI/app tickets, not the serializer core ticket.
+
 ## Schema Rules
 
 - Preserve `schemaVersion` when present.
+- Check `schemaVersion` explicitly during validation/load behavior.
 - Add schema changes intentionally and document them.
 - Prefer explicit validation over trusting arbitrary JSON.
 - Loaded data should be normalized only in clear, documented ways.
@@ -54,10 +76,12 @@ Do not serialize:
 ## Load Rules
 
 - Validate before applying loaded data to app state.
+- Reject unsafe or invalid data before any app state change occurs.
 - Show or return useful errors for invalid files.
 - Do not partially apply invalid data.
 - Do not assume the file extension alone makes content valid.
 - Handle malformed JSON gracefully.
+- Preserve the existing project if load validation fails.
 
 ## UI Boundary Rules
 
@@ -67,6 +91,8 @@ UI components may expose save/load buttons and show errors, but should delegate 
 - `src/core/serialization/loadProject.ts`
 - `src/core/serialization/validateProject.ts`
 - app-level orchestration hooks/services as needed
+
+Do not collapse serializer core work into browser save/load UI tickets unless the active ticket explicitly asks for both layers.
 
 ## Testing Guidance
 
@@ -94,6 +120,8 @@ Include steps to check:
 In addition to the standard report, include:
 
 - Any schema/model fields added or changed
+- Whether the output is JSON-serializable
 - Whether saved output remains engine-agnostic
+- Whether validation protects the current app state on failed load
 - Validation behavior for invalid files
 - Backward compatibility concerns or follow-ups

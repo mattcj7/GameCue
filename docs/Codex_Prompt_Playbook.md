@@ -562,9 +562,11 @@ Before coding, review:
 Playback rules:
 - Tone.js may only be imported under src/playback/tone.
 - Do not import Tone.js into src/core.
+- UI/app may use playback interfaces/adapters but must not import raw tone.
 - Do not store Tone.js objects in GameCueProject or .gamecue.json.
 - Dispose old Tone.js objects when projects reload.
 - Avoid overlapping audio when regenerating or reloading.
+- Invalidate queued callbacks from previously loaded projects after reload/regenerate.
 - Keep scheduling based on project note events.
 - Keep the playback adapter replaceable.
 
@@ -586,6 +588,7 @@ After implementation, provide:
 - Commands run
 - Build/test result
 - Manual audio verification steps
+- Whether human audible playback was actually confirmed
 - Cleanup/dispose behavior
 - Known audio limitations
 ```
@@ -666,6 +669,7 @@ Save/load rules:
 - .gamecue.json is the source of truth.
 - Saved files must contain plain JSON-compatible data only.
 - Do not serialize Tone.js objects or runtime audio state.
+- Keep serializer core under src/core/serialization and free of playback, Tone.js, React, DOM, and browser file APIs.
 - Preserve schemaVersion.
 - Validate loaded data before applying it.
 - Invalid files should not crash the app.

@@ -128,8 +128,14 @@ Failure signs:
 
 Run for browser verification:
 
-```bash
-npm run dev
+```powershell
+npm.cmd run dev
+```
+
+If `npm.cmd` is not on `PATH`, use:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' run dev
 ```
 
 Expected:
@@ -196,11 +202,17 @@ Failure signs:
 
 When tests exist:
 
-```bash
-npm test
+```powershell
+npm.cmd test
 ```
 
 or the project-specific test command listed in README.
+
+If `npm.cmd` is not on `PATH`, use:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' test
+```
 
 Expected:
 
@@ -426,15 +438,22 @@ Playback starts, stops, loops, and responds to track controls without overlappin
 
 - No audio after user interaction
 - Audio keeps playing after Stop
+- Split-second retrigger after Stop or Pause
 - Multiple cues overlap
+- Old cue continues after regeneration or reload
+- Playback gets louder or stacks after repeated Play/Stop
 - Mute does nothing
 - Solo does nothing
+- Loop toggle changes UI but not looping behavior
 - Console errors from Tone.js
+- Console errors from disposed Tone nodes or failed user activation
 - Browser locks up or audio becomes distorted
 
 ### Audio Notes
 
 Browser audio usually requires a user interaction before sound can start. If playback fails before clicking a button, that may be normal. If playback fails after clicking Play, it is a bug.
+
+Headless browser checks cannot prove user activation or audible playback behavior. When acceptance criteria involve hearing audio, mute/solo, loop repetition, or cleanup behavior, a human audible pass is required.
 
 ---
 
@@ -765,7 +784,8 @@ Use after playback/audio changes.
 6. Solo melody
 7. Regenerate while playing
 8. Confirm no overlapping old audio
-9. Check console
+9. Reload or regenerate and confirm stale callbacks from the prior cue do not retrigger sound
+10. Check console
 ```
 
 ## 9.4 Save / Load Regression Pack
