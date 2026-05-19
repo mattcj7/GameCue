@@ -53,7 +53,7 @@ function App() {
       projectNeedsLoadRef.current = false;
 
       if (playbackEngine !== null) {
-        void playbackEngine.dispose();
+        void playbackEngine.dispose().catch(() => undefined);
       }
     };
   }, []);

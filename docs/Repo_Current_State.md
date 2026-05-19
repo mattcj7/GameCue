@@ -31,11 +31,11 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, and core test runner implemented
-Last completed ticket: T0017 — Track Mute / Solo
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, and core test runner implemented
+Last completed ticket: T0018 — Playback Cleanup and Dispose Safety
 Current ticket: None
-Next recommended ticket: T0018 — Playback Cleanup and Dispose Safety
-Current branch: gamecue/t0016-play-stop-loop-controls
+Next recommended ticket: T0019 — Project Serializer
+Current branch: gamecue/t0018-playback-cleanup-dispose-safety
 Repo initialized: Yes
 ```
 
@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control and reload-safe cleanup, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, and keeps per-track mute/solo UI state synchronized with playback before and during transport
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, and preserved mute/solo overrides across reloads, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, and suppresses unhandled dispose rejections during app unmount
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -338,6 +338,7 @@ gamecue/
 | T0015 — Tone.js Scheduler | Implemented | gamecue/t0015-tonejs-scheduler | N/A | Added `TonePlaybackEngine` scheduling that maps generated tracks into Tone transport events with loop/BPM control, generated-instrument fallbacks, reload-safe cleanup, and focused mocked playback tests |
 | T0016 — Play / Stop / Loop Controls | Implemented | gamecue/t0016-play-stop-loop-controls | N/A | Wired `App.tsx` transport state into a long-lived `TonePlaybackEngine`, loads the latest generated project on Play, stops and resets playback on Stop, syncs loop toggles through `setLoop(...)`, and exposes simple transport status/error messaging in the UI |
 | T0017 — Track Mute / Solo | Implemented | gamecue/t0016-play-stop-loop-controls | N/A | Added app-owned per-track mute/solo state, active track-card controls and status chips, reapplies mute/solo state after project load, and updates the playback engine immediately so toggles affect playback without regeneration |
+| T0018 — Playback Cleanup and Dispose Safety | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Hardened `TonePlaybackEngine` reload/dispose cleanup, rolls back partial loads safely, preserves track mute/solo overrides across reloads, keeps repeated stop/pause/dispose calls safe, and suppresses unhandled dispose rejections during app unmount |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -347,14 +348,14 @@ gamecue/
 
 ```text
 Ticket: None
-Branch: gamecue/t0016-play-stop-loop-controls
-Status: Complete for T0017 implementation
+Branch: gamecue/t0018-playback-cleanup-dispose-safety
+Status: Complete for T0018 implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch now includes T0017 across `src/app`, `src/ui/tracks`, and `docs/Repo_Current_State.md`, adding app-owned mute/solo state, active track-card controls, load-time mute/solo reapplication, and immediate playback-engine mute/solo updates without changing core generation, save/load, export, or project-model data.
+This branch now includes T0018 across `src/app`, `src/playback/tone`, `tests/playback`, and `docs/Repo_Current_State.md`, hardening reload/dispose cleanup, clearing scheduled transport callbacks on reload/dispose, rolling back partial `loadProject(...)` failures safely, preserving mute/solo overrides across reloads, keeping repeated stop/pause/dispose calls safe, and suppressing unhandled dispose rejections during app unmount without changing core generation, save/load, export, or project-model data.
 ```
 
 ---
@@ -366,15 +367,12 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- npm.cmd run build
-- & 'C:\Program Files\nodejs\npm.cmd' run build
-- & 'C:\Program Files\nodejs\npm.cmd' test
 - rg -n -F 'from "tone"' src tests
 - rg -n -F "from 'tone'" src tests
 - rg -n "Tone\." src tests
-- Start-Process -FilePath 'C:\Program Files\nodejs\npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','4173' -WorkingDirectory 'O:\GameCue' -WindowStyle Hidden -PassThru
-- Invoke-WebRequest http://127.0.0.1:4173
-- Stop-Process -Force -Id 37724
+- npm.cmd run build
+- & 'C:\Program Files\nodejs\npm.cmd' run build
+- & 'C:\Program Files\nodejs\npm.cmd' test
 ```
 
 ## 7.2 Last Build Result
@@ -392,7 +390,7 @@ Pass
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0017 using `C:\Program Files\nodejs\npm.cmd`. A lightweight dev-server smoke check returned HTTP 200 from `http://127.0.0.1:4173`, confirming the app still serves after the track-control wiring changes. Audible mute/solo behavior still requires one human browser/audio pass because this environment did not perform interactive browser clicks or Web Audio playback.
+Build and test verification passed for T0018 using `C:\Program Files\nodejs\npm.cmd` after `npm.cmd` was unavailable on PATH in this shell. Tone import isolation search still shows raw Tone imports only under `src/playback/tone`, plus the existing source-string assertion in `tests/playback/toneInstruments.test.ts`. Manual browser/audio verification is still required because this environment did not perform interactive browser clicks or Web Audio playback.
 ```
 
 ---
@@ -402,7 +400,7 @@ Build and test verification passed for T0017 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0017 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass. Human audio verification is still recommended because the local smoke check did not exercise interactive mute/solo clicks or audible Web Audio playback.
+No functional implementation issues identified in T0018 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass. Human audio verification is still recommended because this environment did not exercise interactive regenerate/play/stop cycles or audible Web Audio playback.
 ```
 
 See:
@@ -430,7 +428,7 @@ Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation
 ```text
 src/playback exists: Yes
 Tone.js installed: Yes
-Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js, and `src/playback/tone` now contains the Tone instrument factory, scheduler helpers, and `TonePlaybackEngine`; `src/app/App.tsx` owns a single long-lived engine instance plus app-level track mute/solo state, reapplies that state after `loadProject(...)`, and passes transport and track-control actions into the adapter without importing raw Tone.js in UI code
+Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js, and `src/playback/tone` now contains the Tone instrument factory, scheduler helpers, and `TonePlaybackEngine`; the adapter now rolls back partial reload failures, clears tracked transport callbacks on reload/dispose, gates scheduled callbacks behind active playback state, keeps repeated cleanup idempotent, preserves loop state and track mute/solo overrides across reloads, and `src/app/App.tsx` still owns a single long-lived engine instance without importing raw Tone.js in UI code
 ```
 
 ## 9.3 Project File Format
@@ -471,13 +469,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0018 — Playback Cleanup and Dispose Safety.
+Start T0019 — Project Serializer.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0018-playback-cleanup-dispose-safety
+gamecue/t0019-project-serializer
 ```
 
 Recommended prompt source:
@@ -569,30 +567,28 @@ Update Date:
 2026-05-18
 
 Ticket completed:
-T0017 — Track Mute / Solo
+T0018 — Playback Cleanup and Dispose Safety
 
 Branch:
-gamecue/t0016-play-stop-loop-controls
+gamecue/t0018-playback-cleanup-dispose-safety
 
 Commit:
 Not created yet
 
 Files changed:
 - src/app/App.tsx
-- src/app/styles.css
-- src/ui/tracks/TrackList.tsx
+- src/playback/tone/toneScheduler.ts
+- src/playback/tone/TonePlaybackEngine.ts
+- tests/playback/TonePlaybackEngine.test.ts
 - docs/Repo_Current_State.md
 
 Commands run:
 - npm.cmd run build
-- & 'C:\Program Files\nodejs\npm.cmd' run build
-- & 'C:\Program Files\nodejs\npm.cmd' test
 - rg -n -F 'from "tone"' src tests
 - rg -n -F "from 'tone'" src tests
 - rg -n "Tone\." src tests
-- Start-Process -FilePath 'C:\Program Files\nodejs\npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','4173' -WorkingDirectory 'O:\GameCue' -WindowStyle Hidden -PassThru
-- Invoke-WebRequest http://127.0.0.1:4173
-- Stop-Process -Force -Id 37724
+- & 'C:\Program Files\nodejs\npm.cmd' run build
+- & 'C:\Program Files\nodejs\npm.cmd' test
 
 Build result:
 Pass
@@ -601,7 +597,7 @@ Test result:
 Pass
 
 Manual verification result:
-Partial pass. Build and tests passed, and a lightweight local dev-server smoke check returned HTTP 200 after the track mute/solo wiring changes. Audible mute/solo behavior still requires one manual browser/audio pass because this environment did not perform interactive browser clicks or Web Audio playback.
+Partial pass. Build and tests passed, and the Tone import isolation search still shows raw Tone imports only under `src/playback/tone` plus the existing source-string assertion in `tests/playback/toneInstruments.test.ts`. Audible browser playback verification for regenerate/play/stop, loop, and mute/solo regression behavior still requires one manual browser/audio pass because this environment did not perform interactive clicks or Web Audio playback.
 
 Known issues added:
 - Existing Vite React plugin deprecation warnings still appear during `npm test`.
@@ -611,10 +607,10 @@ Docs updated:
 - docs/Repo_Current_State.md
 
 Next recommended ticket:
-T0018 — Playback Cleanup and Dispose Safety
+T0019 — Project Serializer
 
 Notes:
-`App.tsx` now owns per-track mute/solo state keyed by `TrackId`, `TrackList.tsx` renders active mute/solo controls and status chips from that app state, and the playback engine receives the current mute/solo state both immediately on toggle and again after `loadProject(...)` before playback starts.
+`toneScheduler.ts` and `TonePlaybackEngine.ts` now gate scheduled callbacks behind explicit playback-active state so stray queued callbacks cannot retrigger audio after repeated Stop or Pause actions. The engine still preserves track mute/solo overrides across reloads, rolls back partial `loadProject(...)` failures by clearing scheduled callbacks and disposing any already-created instrument handles, and marks explicit disposal before cleanup so repeated `dispose()` calls are harmless and later public method calls throw clear disposed-engine errors. `App.tsx` still suppresses unhandled promise rejections if unmount-time disposal fails.
 ```
 
 ---

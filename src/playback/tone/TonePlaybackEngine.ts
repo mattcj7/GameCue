@@ -18,35 +18,48 @@ export class TonePlaybackEngine implements PlaybackEngine {
   private scheduledEventIds: number[] = [];
   private project: GameCueProject | null = null;
   private loopEnabled = true;
+  private playbackActive = false;
+  private playbackTransitionId = 0;
   private disposed = false;
 
   async loadProject(project: GameCueProject): Promise<void> {
     this.ensureActive();
-    this.resetLoadedProject();
+    const previousTrackMuteState = new Map(this.trackMuteState);
+    const previousTrackSoloState = new Map(this.trackSoloState);
 
-    this.project = project;
-    this.transport.bpm.value = project.cue.bpm;
-    this.transport.loopStart = 0;
-    this.transport.loopEnd = getLoopEndTime(project.cue.bars);
-    this.transport.loop = this.loopEnabled;
+    this.resetLoadedProject({ clearTrackState: false });
+    this.trackMuteState.clear();
+    this.trackSoloState.clear();
 
-    for (const track of project.tracks) {
-      this.trackMuteState.set(track.id, track.muted);
-      this.trackSoloState.set(track.id, track.solo);
+    try {
+      this.project = project;
+      this.transport.bpm.value = project.cue.bpm;
+      this.transport.loopStart = 0;
+      this.transport.loopEnd = getLoopEndTime(project.cue.bars);
+      this.transport.loop = this.loopEnabled;
 
-      const instrument = createToneInstrument(resolveToneInstrumentId(track.instrument));
-      this.loadedTracks.push({
-        instrument,
-      });
+      for (const track of project.tracks) {
+        this.trackMuteState.set(track.id, previousTrackMuteState.get(track.id) ?? track.muted);
+        this.trackSoloState.set(track.id, previousTrackSoloState.get(track.id) ?? track.solo);
 
-      this.scheduledEventIds.push(
-        ...scheduleTrackEvents({
-          track,
+        const instrument = createToneInstrument(resolveToneInstrumentId(track.instrument));
+        this.loadedTracks.push({
           instrument,
-          transport: this.transport,
-          isTrackAudible: (trackId) => this.isTrackAudible(trackId),
-        }),
-      );
+        });
+
+        this.scheduledEventIds.push(
+          ...scheduleTrackEvents({
+            track,
+            instrument,
+            transport: this.transport,
+            isPlaybackActive: () => this.playbackActive,
+            isTrackAudible: (trackId) => this.isTrackAudible(trackId),
+          }),
+        );
+      }
+    } catch (error) {
+      this.resetLoadedProject();
+      throw error;
     }
   }
 
@@ -57,12 +70,25 @@ export class TonePlaybackEngine implements PlaybackEngine {
       return;
     }
 
+    const playTransitionId = this.playbackTransitionId;
     await start();
+    this.ensureActive();
+
+    if (
+      this.project === null ||
+      this.playbackActive ||
+      playTransitionId !== this.playbackTransitionId
+    ) {
+      return;
+    }
+
+    this.playbackActive = true;
     this.transport.start();
   }
 
   async stop(): Promise<void> {
     this.ensureActive();
+    this.deactivatePlayback();
     this.transport.stop();
     this.transport.position = 0;
     this.releaseLoadedInstruments();
@@ -70,6 +96,7 @@ export class TonePlaybackEngine implements PlaybackEngine {
 
   async pause(): Promise<void> {
     this.ensureActive();
+    this.deactivatePlayback();
     this.transport.pause();
     this.releaseLoadedInstruments();
   }
@@ -100,8 +127,8 @@ export class TonePlaybackEngine implements PlaybackEngine {
       return;
     }
 
-    this.resetLoadedProject();
     this.disposed = true;
+    this.resetLoadedProject();
   }
 
   private isTrackAudible(trackId: TrackId): boolean {
@@ -116,15 +143,27 @@ export class TonePlaybackEngine implements PlaybackEngine {
     return this.trackMuteState.get(trackId) !== true;
   }
 
-  private resetLoadedProject(): void {
+  private resetLoadedProject(options?: { clearTrackState?: boolean }): void {
+    const shouldClearTrackState = options?.clearTrackState ?? true;
+
+    this.deactivatePlayback();
     this.transport.stop();
     this.transport.position = 0;
     this.releaseLoadedInstruments();
     this.clearScheduledEvents();
     this.disposeLoadedInstruments();
-    this.trackMuteState.clear();
-    this.trackSoloState.clear();
+
+    if (shouldClearTrackState) {
+      this.trackMuteState.clear();
+      this.trackSoloState.clear();
+    }
+
     this.project = null;
+  }
+
+  private deactivatePlayback(): void {
+    this.playbackActive = false;
+    this.playbackTransitionId += 1;
   }
 
   private clearScheduledEvents(): void {

@@ -18,6 +18,7 @@ export interface ScheduleTrackEventsOptions {
   track: Track;
   instrument: ToneInstrumentHandle;
   transport: ToneTransportScheduler;
+  isPlaybackActive: () => boolean;
   isTrackAudible: (trackId: TrackId) => boolean;
 }
 
@@ -70,10 +71,15 @@ export function scheduleTrackEvents({
   track,
   instrument,
   transport,
+  isPlaybackActive,
   isTrackAudible,
 }: ScheduleTrackEventsOptions): number[] {
   return track.events.map((event) =>
     transport.schedule((time) => {
+      if (!isPlaybackActive()) {
+        return;
+      }
+
       if (!isTrackAudible(track.id)) {
         return;
       }

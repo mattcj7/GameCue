@@ -17,6 +17,7 @@ type CreatedHandle = {
 const mockedState = vi.hoisted(() => ({
   instrumentState: {
     createCalls: [] as InstrumentId[],
+    failOnInstrumentId: null as InstrumentId | null,
     handles: [] as CreatedHandle[],
   },
   toneStartMock: vi.fn(() => Promise.resolve()),
@@ -55,6 +56,7 @@ function resetTransportState(): void {
 
 function resetInstrumentState(): void {
   mockedState.instrumentState.createCalls = [];
+  mockedState.instrumentState.failOnInstrumentId = null;
   mockedState.instrumentState.handles = [];
 }
 
@@ -67,6 +69,9 @@ vi.mock("tone", () => {
         bpm: mockedState.transportState.bpm,
         clear(eventId: number) {
           mockedState.transportState.clearCalls.push(eventId);
+          mockedState.transportState.scheduledEvents = mockedState.transportState.scheduledEvents.filter(
+            (event) => event.id !== eventId,
+          );
           return this;
         },
         get loop() {
@@ -126,6 +131,10 @@ vi.mock("../../src/playback/tone/toneInstruments", () => {
   return {
     createToneInstrument(instrumentId: InstrumentId) {
       mockedState.instrumentState.createCalls.push(instrumentId);
+
+      if (mockedState.instrumentState.failOnInstrumentId === instrumentId) {
+        throw new Error(`Failed to create Tone instrument: ${instrumentId}`);
+      }
 
       if (instrumentId === "minimal_electronic_kit") {
         const handle: CreatedHandle = {
@@ -274,6 +283,7 @@ describe("TonePlaybackEngine", () => {
     });
 
     await engine.loadProject(project);
+    await engine.play();
 
     expect(mockedState.instrumentState.createCalls).toEqual(["minimal_electronic_kit", "dark_pad"]);
     expect(mockedState.transportState.scheduledEvents.map((event) => event.time)).toEqual([
@@ -332,9 +342,172 @@ describe("TonePlaybackEngine", () => {
     await engine.loadProject(secondProject);
 
     expect(mockedState.transportState.clearCalls).toEqual(firstScheduledIds);
+    expect(mockedState.transportState.scheduledEvents).toHaveLength(secondProject.tracks[0]?.events.length ?? 0);
     expect(firstHandles.every((handle) => handle.dispose.mock.calls.length === 1)).toBe(true);
     expect(firstHandles.every((handle) => handle.releaseAll?.mock.calls.length === 1)).toBe(true);
     expect(mockedState.transportState.stopCalls.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps stop and pause safe across repeated calls", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    await expect(engine.stop()).resolves.toBeUndefined();
+    await expect(engine.pause()).resolves.toBeUndefined();
+
+    await engine.loadProject(project);
+
+    await expect(engine.stop()).resolves.toBeUndefined();
+    await expect(engine.stop()).resolves.toBeUndefined();
+    await expect(engine.pause()).resolves.toBeUndefined();
+    await expect(engine.pause()).resolves.toBeUndefined();
+
+    expect(mockedState.transportState.position).toBe(0);
+    expect(mockedState.instrumentState.handles[0]?.releaseAll?.mock.calls.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("does not trigger scheduled events after stop", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(project);
+    await engine.play();
+    await engine.stop();
+
+    mockedState.transportState.scheduledEvents[0]?.callback("after-stop");
+
+    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
+  });
+
+  it("does not trigger scheduled events after pause", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(project);
+    await engine.play();
+    await engine.pause();
+
+    mockedState.transportState.scheduledEvents[0]?.callback("after-pause");
+
+    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
+  });
+
+  it("keeps repeated stop calls silent even if scheduled callbacks run", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(project);
+    await engine.play();
+    await engine.stop();
+    await engine.stop();
+    await engine.stop();
+
+    mockedState.transportState.scheduledEvents[0]?.callback("after-repeated-stop");
+
+    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
+  });
+
+  it("allows scheduled events to trigger again after play resumes from stop", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(project);
+    await engine.play();
+    await engine.stop();
+
+    mockedState.transportState.scheduledEvents[0]?.callback("while-stopped");
+
+    await engine.play();
+    mockedState.transportState.scheduledEvents[0]?.callback("after-restart");
+
+    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([
+      ["E4", "1*4n", "after-restart", 0.8],
+    ]);
+  });
+
+  it("does not start playback if stop happens while play is still awaiting Tone.start", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "E4" })],
+        }),
+      ],
+    });
+
+    let resolveStart: (() => void) | undefined;
+    mockedState.toneStartMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveStart = resolve;
+        }),
+    );
+
+    await engine.loadProject(project);
+
+    const playPromise = engine.play();
+    await engine.stop();
+    resolveStart?.();
+    await playPromise;
+
+    mockedState.transportState.scheduledEvents[0]?.callback("after-cancelled-play");
+
+    expect(mockedState.transportState.startCalls).toHaveLength(0);
+    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
   });
 
   it("routes play, pause, stop, and dispose through the mocked Tone transport", async () => {
@@ -366,9 +539,75 @@ describe("TonePlaybackEngine", () => {
     expect(mockedState.instrumentState.handles[0]?.dispose).toHaveBeenCalledTimes(1);
   });
 
-  it("updates runtime BPM/loop settings and respects simple mute/solo state", async () => {
+  it("keeps dispose idempotent and rejects public methods after disposal", async () => {
     const engine = new TonePlaybackEngine();
     const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_note", type: "note", pitch: "G4" })],
+        }),
+      ],
+    });
+
+    await engine.loadProject(project);
+
+    const loadedHandle = mockedState.instrumentState.handles[0];
+
+    await expect(engine.dispose()).resolves.toBeUndefined();
+    await expect(engine.dispose()).resolves.toBeUndefined();
+
+    expect(loadedHandle?.dispose).toHaveBeenCalledTimes(1);
+    await expect(engine.play()).rejects.toThrow("TonePlaybackEngine has been disposed.");
+    await expect(engine.stop()).rejects.toThrow("TonePlaybackEngine has been disposed.");
+    await expect(engine.pause()).rejects.toThrow("TonePlaybackEngine has been disposed.");
+    expect(() => engine.setLoop(true)).toThrow("TonePlaybackEngine has been disposed.");
+  });
+
+  it("cleans up partially created resources when loadProject fails midway", async () => {
+    const engine = new TonePlaybackEngine();
+    const project = createProject({
+      tracks: [
+        createTrack({
+          id: "track_lead",
+          name: "Lead",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_lead", type: "note", pitch: "A4" })],
+        }),
+        createTrack({
+          id: "track_bass",
+          name: "Bass",
+          type: "bass",
+          instrument: "sub_pulse",
+          events: [createNoteEvent({ id: "event_bass", type: "note", pitch: "D2", startBeat: 1 })],
+        }),
+      ],
+    });
+
+    mockedState.instrumentState.failOnInstrumentId = "sub_pulse";
+
+    await expect(engine.loadProject(project)).rejects.toThrow(
+      "Failed to create Tone instrument: sub_pulse",
+    );
+
+    const firstHandle = mockedState.instrumentState.handles[0];
+
+    expect(mockedState.instrumentState.createCalls).toEqual(["simple_lead", "sub_pulse"]);
+    expect(firstHandle?.releaseAll).toHaveBeenCalledTimes(1);
+    expect(firstHandle?.dispose).toHaveBeenCalledTimes(1);
+    expect(mockedState.transportState.clearCalls).toHaveLength(1);
+    expect(mockedState.transportState.scheduledEvents).toHaveLength(0);
+    await expect(engine.play()).resolves.toBeUndefined();
+    expect(mockedState.toneStartMock).not.toHaveBeenCalled();
+  });
+
+  it("reapplies loop and mute or solo state after reload", async () => {
+    const engine = new TonePlaybackEngine();
+    const firstProject = createProject({
       tracks: [
         createTrack({
           id: "track_a",
@@ -387,20 +626,47 @@ describe("TonePlaybackEngine", () => {
       ],
     });
 
-    await engine.loadProject(project);
+    const secondProject = createProject({
+      projectId: "project_reload",
+      cue: createSettings({ bars: 12, bpm: 72 }),
+      tracks: [
+        createTrack({
+          id: "track_a",
+          name: "Lead A",
+          type: "melody",
+          instrument: "simple_lead",
+          events: [createNoteEvent({ id: "event_reload_a", type: "note", pitch: "G4" })],
+        }),
+        createTrack({
+          id: "track_b",
+          name: "Lead B",
+          type: "melody",
+          instrument: "soft_pluck",
+          events: [createNoteEvent({ id: "event_reload_b", type: "note", pitch: "B4", startBeat: 1 })],
+        }),
+      ],
+    });
 
-    engine.setBpm(140);
+    await engine.loadProject(firstProject);
+
     engine.setLoop(false);
     engine.setTrackMuted("track_a", true);
-    mockedState.transportState.scheduledEvents[0]?.callback("time-one");
     engine.setTrackSolo("track_b", true);
-    mockedState.transportState.scheduledEvents[1]?.callback("time-two");
+    await engine.loadProject(secondProject);
+    await engine.play();
 
-    expect(mockedState.transportState.bpm.value).toBe(140);
+    for (const scheduledEvent of mockedState.transportState.scheduledEvents) {
+      scheduledEvent.callback("reloaded-time");
+    }
+
+    const secondLoadHandles = mockedState.instrumentState.handles.slice(-2);
+
+    expect(mockedState.transportState.bpm.value).toBe(72);
     expect(mockedState.transportState.loop).toBe(false);
-    expect(mockedState.instrumentState.handles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
-    expect(mockedState.instrumentState.handles[1]?.triggerAttackRelease?.mock.calls).toEqual([
-      ["E4", "1*4n", "time-two", 0.8],
+    expect(mockedState.transportState.loopEnd).toBe("48*4n");
+    expect(secondLoadHandles[0]?.triggerAttackRelease?.mock.calls).toEqual([]);
+    expect(secondLoadHandles[1]?.triggerAttackRelease?.mock.calls).toEqual([
+      ["B4", "1*4n", "reloaded-time", 0.8],
     ]);
   });
 });
