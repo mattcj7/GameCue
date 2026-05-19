@@ -32,7 +32,7 @@ Update this file after each meaningful repo change.
 
 ```text
 Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, and core test runner implemented
-Last completed ticket: T0018 — Playback Cleanup and Dispose Safety
+Last completed ticket: T0018A — Strengthen Audio Verification and Save/Load Skills
 Current ticket: None
 Next recommended ticket: T0019 — Project Serializer
 Current branch: gamecue/t0018-playback-cleanup-dispose-safety
@@ -65,6 +65,7 @@ AGENTS.md
 
 ```text
 Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, and preserved mute/solo overrides across reloads, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, and suppresses unhandled dispose rejections during app unmount
+Docs/workflow status: T0018A strengthened the existing playback, manual verification, and save/load Codex skills plus related workflow docs. No source, package, build-config, or test implementation files changed in T0018A.
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -339,6 +340,7 @@ gamecue/
 | T0016 — Play / Stop / Loop Controls | Implemented | gamecue/t0016-play-stop-loop-controls | N/A | Wired `App.tsx` transport state into a long-lived `TonePlaybackEngine`, loads the latest generated project on Play, stops and resets playback on Stop, syncs loop toggles through `setLoop(...)`, and exposes simple transport status/error messaging in the UI |
 | T0017 — Track Mute / Solo | Implemented | gamecue/t0016-play-stop-loop-controls | N/A | Added app-owned per-track mute/solo state, active track-card controls and status chips, reapplies mute/solo state after project load, and updates the playback engine immediately so toggles affect playback without regeneration |
 | T0018 — Playback Cleanup and Dispose Safety | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Hardened `TonePlaybackEngine` reload/dispose cleanup, rolls back partial loads safely, preserves track mute/solo overrides across reloads, keeps repeated stop/pause/dispose calls safe, and suppresses unhandled dispose rejections during app unmount |
+| T0018A — Strengthen Audio Verification and Save/Load Skills | Documentation | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Strengthened existing playback/manual-verification/save-load skills and workflow docs with human-audible playback checks, stale-callback regression guidance, Windows-safe verification commands, and engine-agnostic `.gamecue.json` serialization guardrails |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -349,13 +351,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: gamecue/t0018-playback-cleanup-dispose-safety
-Status: Complete for T0018 implementation
+Status: Complete for T0018A docs/workflow implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch now includes T0018 across `src/app`, `src/playback/tone`, `tests/playback`, and `docs/Repo_Current_State.md`, hardening reload/dispose cleanup, clearing scheduled transport callbacks on reload/dispose, rolling back partial `loadProject(...)` failures safely, preserving mute/solo overrides across reloads, keeping repeated stop/pause/dispose calls safe, and suppressing unhandled dispose rejections during app unmount without changing core generation, save/load, export, or project-model data.
+This branch now includes T0018 engine cleanup hardening plus T0018A docs/workflow guardrail updates. T0018A changed only `.codex/skills` and documentation files, capturing the T0018B lesson that stale queued transport callbacks must be invalidated after reload/regenerate, and strengthening future human-audio verification and engine-agnostic save/load prompt guidance before Phase 4 begins.
 ```
 
 ---
@@ -367,30 +369,31 @@ Update after each ticket.
 ## 7.1 Last Commands Run
 
 ```text
-- rg -n -F 'from "tone"' src tests
-- rg -n -F "from 'tone'" src tests
-- rg -n "Tone\." src tests
-- npm.cmd run build
-- & 'C:\Program Files\nodejs\npm.cmd' run build
-- & 'C:\Program Files\nodejs\npm.cmd' test
+- git status --short
+- git diff --name-only
+- Get-Content -Path .codex/skills/gamecue-audio-playback/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-save-load/SKILL.md
+- Get-Content -Path docs/GameCue_Starter_Skills_Reference.md
+- Get-Content -Path docs/Repo_Current_State.md
 ```
 
 ## 7.2 Last Build Result
 
 ```text
-Pass
+Not run for T0018A because this ticket changed docs/skills only. Last source build status remains Pass from T0018.
 ```
 
 ## 7.3 Last Test Result
 
 ```text
-Pass
+Not run for T0018A because this ticket changed docs/skills only. Last source test status remains Pass from T0018.
 ```
 
 ## 7.4 Last Manual Verification Result
 
 ```text
-Build and test verification passed for T0018 using `C:\Program Files\nodejs\npm.cmd` after `npm.cmd` was unavailable on PATH in this shell. Tone import isolation search still shows raw Tone imports only under `src/playback/tone`, plus the existing source-string assertion in `tests/playback/toneInstruments.test.ts`. Manual browser/audio verification is still required because this environment did not perform interactive browser clicks or Web Audio playback.
+T0018A scope verification passed. Only `.codex/skills` and documentation files were changed, and no `src/`, `package.json`, `package-lock.json`, build-config, or test implementation files were edited. No browser/audio/manual app verification was required because this ticket made no runtime behavior change.
 ```
 
 ---
@@ -400,7 +403,7 @@ Build and test verification passed for T0018 using `C:\Program Files\nodejs\npm.
 Current known issues:
 
 ```text
-No functional implementation issues identified in T0018 from build and test verification. Vite still reports existing React plugin deprecation warnings during `npm test`, but the tests pass. Human audio verification is still recommended because this environment did not exercise interactive regenerate/play/stop cycles or audible Web Audio playback.
+No new source implementation issues were introduced by T0018A because it changed docs/skills only. The strengthened workflow now explicitly requires human audio verification for future playback tickets whose acceptance criteria depend on audible behavior, and explicitly calls out stale-callback-after-reload regressions as a playback cleanup check.
 ```
 
 See:
@@ -461,7 +464,7 @@ gamecue-manual-verification
 Notes:
 
 ```text
-These skills were added during the T0003 merge. They are accepted as useful starter project tooling rather than reverted. Future skills should be added through explicit docs/workflow tickets.
+These skills were added during the T0003 merge. They are accepted as useful starter project tooling rather than reverted. T0018A strengthened the existing audio playback, manual verification, and save/load skills instead of creating duplicate skill folders. Future duplicate skills for audio manual verification or save/load serialization should not be created unless the current skills prove insufficient in practice.
 ```
 
 ---
@@ -567,7 +570,7 @@ Update Date:
 2026-05-18
 
 Ticket completed:
-T0018 — Playback Cleanup and Dispose Safety
+T0018A — Strengthen Audio Verification and Save/Load Skills
 
 Branch:
 gamecue/t0018-playback-cleanup-dispose-safety
@@ -576,41 +579,51 @@ Commit:
 Not created yet
 
 Files changed:
-- src/app/App.tsx
-- src/playback/tone/toneScheduler.ts
-- src/playback/tone/TonePlaybackEngine.ts
-- tests/playback/TonePlaybackEngine.test.ts
+- .codex/skills/gamecue-audio-playback/SKILL.md
+- .codex/skills/gamecue-manual-verification/SKILL.md
+- .codex/skills/gamecue-save-load/SKILL.md
+- docs/GameCue_Starter_Skills_Reference.md
 - docs/Repo_Current_State.md
+- docs/Codex_Prompt_Playbook.md
+- docs/Manual_Verification_Guide.md
+- AGENTS.md
 
 Commands run:
-- npm.cmd run build
-- rg -n -F 'from "tone"' src tests
-- rg -n -F "from 'tone'" src tests
-- rg -n "Tone\." src tests
-- & 'C:\Program Files\nodejs\npm.cmd' run build
-- & 'C:\Program Files\nodejs\npm.cmd' test
+- git status --short
+- git diff --name-only
+- Get-Content -Path .codex/skills/gamecue-audio-playback/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-save-load/SKILL.md
+- Get-Content -Path docs/GameCue_Starter_Skills_Reference.md
+- Get-Content -Path docs/Repo_Current_State.md
 
 Build result:
-Pass
+Not run by design. T0018A changed docs/skills only.
 
 Test result:
-Pass
+Not run by design. T0018A changed docs/skills only.
 
 Manual verification result:
-Partial pass. Build and tests passed, and the Tone import isolation search still shows raw Tone imports only under `src/playback/tone` plus the existing source-string assertion in `tests/playback/toneInstruments.test.ts`. Audible browser playback verification for regenerate/play/stop, loop, and mute/solo regression behavior still requires one manual browser/audio pass because this environment did not perform interactive clicks or Web Audio playback.
+Pass for ticket scope. Verified that only `.codex/skills` and documentation files changed, with no edits under `src/` and no package/build/test implementation file changes.
 
 Known issues added:
-- Existing Vite React plugin deprecation warnings still appear during `npm test`.
-- Human audio confirmation is still required for this ticket.
+None.
 
 Docs updated:
+- .codex/skills/gamecue-audio-playback/SKILL.md
+- .codex/skills/gamecue-manual-verification/SKILL.md
+- .codex/skills/gamecue-save-load/SKILL.md
+- docs/GameCue_Starter_Skills_Reference.md
 - docs/Repo_Current_State.md
+- docs/Codex_Prompt_Playbook.md
+- docs/Manual_Verification_Guide.md
+- AGENTS.md
 
 Next recommended ticket:
 T0019 — Project Serializer
 
 Notes:
-`toneScheduler.ts` and `TonePlaybackEngine.ts` now gate scheduled callbacks behind explicit playback-active state and the current loaded-project token so stale callbacks from a prior load cannot fire after reload, even when the new project reuses the same `track_*` IDs. The engine still preserves track mute/solo overrides across reloads, rolls back partial `loadProject(...)` failures by clearing scheduled callbacks and disposing any already-created instrument handles, and marks explicit disposal before cleanup so repeated `dispose()` calls are harmless and later public method calls throw clear disposed-engine errors. `App.tsx` still suppresses unhandled promise rejections if unmount-time disposal fails.
+T0018A intentionally updated the existing playback/manual-verification/save-load skills instead of creating duplicate skill folders. The strengthened guidance now distinguishes build/test checks, headless/browser smoke checks, and human audible confirmation; calls out stale queued callbacks after reload/regenerate as a specific playback regression to verify; adds Windows-safe `npm.cmd` command fallbacks; and tightens `.gamecue.json` serializer-core boundaries so upcoming T0019–T0023 work stays engine-agnostic. No runtime source code changed.
 ```
 
 ---

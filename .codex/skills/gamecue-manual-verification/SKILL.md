@@ -13,7 +13,7 @@ Before writing verification steps, review:
 
 - `AGENTS.md`
 - `docs/Tickets.md`
-- `docs/GameCue_Manual_Verification_Guide.md`
+- `docs/Manual_Verification_Guide.md`
 - The completed ticket description or completion report
 
 ## Verification Goal
@@ -57,6 +57,14 @@ npm.cmd run build
 & .\node_modules\.bin\vite.cmd build
 ```
 
+When `npm` is unreliable on `PATH`, use these Windows-safe commands directly:
+
+```powershell
+& 'C:\Program Files\nodejs\npm.cmd' run build
+& 'C:\Program Files\nodejs\npm.cmd' test
+& 'C:\Program Files\nodejs\npm.cmd' run dev
+```
+
 `npm.ps1` being blocked by PowerShell is not a code failure.
 
 Missing `npm` on `PATH` is not a code failure.
@@ -73,6 +81,14 @@ Expected default results:
 
 If tests are not configured yet, state `Tests: not present/not configured` instead of treating that as a failure.
 
+If `rg` is unavailable and the ticket needs a Tone import isolation check, use PowerShell fallbacks such as:
+
+```powershell
+Get-ChildItem -Path src,tests -Recurse -Include *.ts,*.tsx | Select-String -SimpleMatch 'from "tone"'
+Get-ChildItem -Path src,tests -Recurse -Include *.ts,*.tsx | Select-String -SimpleMatch "from 'tone'"
+Get-ChildItem -Path src,tests -Recurse -Include *.ts,*.tsx | Select-String -Pattern 'Tone\.'
+```
+
 ## Browser Verification Rules
 
 For UI-related tickets, include steps to check:
@@ -87,12 +103,26 @@ For UI-related tickets, include steps to check:
 
 For playback-related tickets, include steps to check:
 
+- Human audio confirmation is required when acceptance criteria say `hear audio`, `mute works`, `solo works`, `loop repeats`, or otherwise depend on audible behavior.
+- Headless browser checks cannot prove Web Audio user activation or audible playback behavior.
 - Audio starts only after a user gesture.
 - Play/stop behavior is predictable.
+- Stop/Pause does not allow queued callbacks to retrigger sound.
 - Looping matches cue length.
 - Mute/solo behavior works when applicable.
 - No obvious overlapping playback after stop/regenerate/load.
-- No console errors from Tone.js or disposed objects.
+- Generating a new cue while playing does not leave the old cue underneath.
+- Reload invalidates callbacks from previously loaded projects.
+- No console errors from Tone.js, disposed objects, or failed user activation.
+
+Include explicit failure signs when audio behavior matters:
+
+- Split-second retrigger after Stop
+- Old cue continues after regeneration or reload
+- Playback stacks or gets louder after repeated Play
+- Mute/solo toggles visually change but do not affect audio
+- Loop toggle changes UI but does not change looping behavior
+- Console errors from disposed Tone nodes or user activation failure
 
 ## Save/Load Verification Rules
 
@@ -154,5 +184,6 @@ Pass/fail notes:
 - Be specific enough that a tired human can follow it.
 - Include expected results after each meaningful step.
 - Mention failure signs when useful.
+- State explicitly when human audible confirmation is required.
 - Do not require deep code review unless the ticket is specifically a review task.
 - Do not create a massive QA plan for a tiny ticket.
