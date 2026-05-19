@@ -64,7 +64,7 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, and preserved mute/solo overrides across reloads, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, and suppresses unhandled dispose rejections during app unmount
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, and preserved mute/solo overrides across reloads, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, and suppresses unhandled dispose rejections during app unmount
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -428,7 +428,7 @@ Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation
 ```text
 src/playback exists: Yes
 Tone.js installed: Yes
-Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js, and `src/playback/tone` now contains the Tone instrument factory, scheduler helpers, and `TonePlaybackEngine`; the adapter now rolls back partial reload failures, clears tracked transport callbacks on reload/dispose, gates scheduled callbacks behind active playback state, keeps repeated cleanup idempotent, preserves loop state and track mute/solo overrides across reloads, and `src/app/App.tsx` still owns a single long-lived engine instance without importing raw Tone.js in UI code
+Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js, and `src/playback/tone` now contains the Tone instrument factory, scheduler helpers, and `TonePlaybackEngine`; the adapter now rolls back partial reload failures, clears tracked transport callbacks on reload/dispose, gates scheduled callbacks behind active playback state plus the currently loaded project token, keeps repeated cleanup idempotent, preserves loop state and track mute/solo overrides across reloads, and `src/app/App.tsx` still owns a single long-lived engine instance without importing raw Tone.js in UI code
 ```
 
 ## 9.3 Project File Format
@@ -610,7 +610,7 @@ Next recommended ticket:
 T0019 — Project Serializer
 
 Notes:
-`toneScheduler.ts` and `TonePlaybackEngine.ts` now gate scheduled callbacks behind explicit playback-active state so stray queued callbacks cannot retrigger audio after repeated Stop or Pause actions. The engine still preserves track mute/solo overrides across reloads, rolls back partial `loadProject(...)` failures by clearing scheduled callbacks and disposing any already-created instrument handles, and marks explicit disposal before cleanup so repeated `dispose()` calls are harmless and later public method calls throw clear disposed-engine errors. `App.tsx` still suppresses unhandled promise rejections if unmount-time disposal fails.
+`toneScheduler.ts` and `TonePlaybackEngine.ts` now gate scheduled callbacks behind explicit playback-active state and the current loaded-project token so stale callbacks from a prior load cannot fire after reload, even when the new project reuses the same `track_*` IDs. The engine still preserves track mute/solo overrides across reloads, rolls back partial `loadProject(...)` failures by clearing scheduled callbacks and disposing any already-created instrument handles, and marks explicit disposal before cleanup so repeated `dispose()` calls are harmless and later public method calls throw clear disposed-engine errors. `App.tsx` still suppresses unhandled promise rejections if unmount-time disposal fails.
 ```
 
 ---
