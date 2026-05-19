@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, and core test runner implemented
-Last completed ticket: T0018A — Strengthen Audio Verification and Save/Load Skills
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, core test runner, and project serializer implemented
+Last completed ticket: T0019 — Project Serializer
 Current ticket: None
-Next recommended ticket: T0019 — Project Serializer
+Next recommended ticket: T0020 — Project Validator
 Current branch: gamecue/t0018-playback-cleanup-dispose-safety
 Repo initialized: Yes
 ```
@@ -64,8 +64,8 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, and preserved mute/solo overrides across reloads, and app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, and suppresses unhandled dispose rejections during app unmount
-Docs/workflow status: T0018A strengthened the existing playback, manual verification, and save/load Codex skills plus related workflow docs. No source, package, build-config, or test implementation files changed in T0018A.
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, preserved mute/solo overrides across reloads, app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, suppresses unhandled dispose rejections during app unmount, and a minimal engine-agnostic `serializeProject(project)` helper in `src/core/serialization` that pretty-prints deterministic `.gamecue.json` output without adding browser, playback, or UI concerns
+Docs/workflow status: T0018A strengthened the existing playback, manual verification, and save/load Codex skills plus related workflow docs. T0019 updated `docs/Repo_Current_State.md` to reflect serializer implementation and verification results.
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -76,7 +76,7 @@ Music theory helpers created: Yes
 Cue template system created: Yes
 Generation system created: Yes
 Playback system created: Interface, Tone instrument factory, Tone.js scheduler adapter, and transport control wiring
-Save/load created: No
+Save/load created: Serializer core only
 Export system created: No
 Tests created: Yes
 ```
@@ -289,6 +289,9 @@ gamecue/
         drumPatterns.ts
         index.ts
       serialization/
+        .gitkeep
+        index.ts
+        serializeProject.ts
     playback/
       tone/
     ui/
@@ -304,6 +307,7 @@ gamecue/
       drumPatterns.test.ts
       melodies.test.ts
       projects.test.ts
+      serializeProject.test.ts
       templates.test.ts
       theory.test.ts
     playback/
@@ -341,6 +345,7 @@ gamecue/
 | T0017 — Track Mute / Solo | Implemented | gamecue/t0016-play-stop-loop-controls | N/A | Added app-owned per-track mute/solo state, active track-card controls and status chips, reapplies mute/solo state after project load, and updates the playback engine immediately so toggles affect playback without regeneration |
 | T0018 — Playback Cleanup and Dispose Safety | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Hardened `TonePlaybackEngine` reload/dispose cleanup, rolls back partial loads safely, preserves track mute/solo overrides across reloads, keeps repeated stop/pause/dispose calls safe, and suppresses unhandled dispose rejections during app unmount |
 | T0018A — Strengthen Audio Verification and Save/Load Skills | Documentation | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Strengthened existing playback/manual-verification/save-load skills and workflow docs with human-audible playback checks, stale-callback regression guidance, Windows-safe verification commands, and engine-agnostic `.gamecue.json` serialization guardrails |
+| T0019 — Project Serializer | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Added an engine-agnostic `serializeProject(project)` helper under `src/core/serialization`, a barrel export, and focused tests for pretty JSON output, round-trip preservation, non-mutation, runtime-key absence, and serializer import isolation |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -351,13 +356,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: gamecue/t0018-playback-cleanup-dispose-safety
-Status: Complete for T0018A docs/workflow implementation
+Status: Complete for T0019 serializer implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch now includes T0018 engine cleanup hardening plus T0018A docs/workflow guardrail updates. T0018A changed only `.codex/skills` and documentation files, capturing the T0018B lesson that stale queued transport callbacks must be invalidated after reload/regenerate, and strengthening future human-audio verification and engine-agnostic save/load prompt guidance before Phase 4 begins.
+This branch now includes T0018 engine cleanup hardening, T0018A docs/workflow guardrail updates, and T0019 serializer implementation. T0019 added a minimal `src/core/serialization` API that pretty-prints `GameCueProject` data without introducing validation, load parsing, browser download behavior, Tone.js coupling, or UI/app dependencies.
 ```
 
 ---
@@ -370,30 +375,56 @@ Update after each ticket.
 
 ```text
 - git status --short
-- git diff --name-only
-- Get-Content -Path .codex/skills/gamecue-audio-playback/SKILL.md
-- Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
-- Get-Content -Path .codex/skills/gamecue-save-load/SKILL.md
-- Get-Content -Path docs/GameCue_Starter_Skills_Reference.md
+- Get-Content -Path AGENTS.md
+- Get-Content -Path README.md
+- Get-Content -Path docs/GameCue_Full_Design_Document.md
+- Get-Content -Path docs/GameCue_MVP_Technical_Design.md
+- Get-Content -Path docs/Tickets.md
+- Get-Content -Path docs/Codex_Prompt_Playbook.md
+- Get-Content -Path docs/Naming_And_Code_Conventions.md
 - Get-Content -Path docs/Repo_Current_State.md
+- Get-Content -Path docs/Manual_Verification_Guide.md
+- Get-Content -Path docs/GameCue_Starter_Skills_Reference.md
+- Get-Content -Path .codex/skills/gamecue-ticket-runner/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-save-load/SKILL.md
+- Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
+- Get-Content -Path src/core/model/GameCueProject.ts
+- Get-Content -Path src/core/model/CueSettings.ts
+- Get-Content -Path src/core/model/Section.ts
+- Get-Content -Path src/core/model/Track.ts
+- Get-Content -Path src/core/model/NoteEvent.ts
+- Get-Content -Path src/core/model/MixSettings.ts
+- Get-Content -Path src/core/model/projectTypes.ts
+- Get-Content -Path src/core/generation/projects.ts
+- Get-Content -Path tests/core/projects.test.ts
+- npm.cmd run build
+- npm.cmd test
+- & 'C:\Program Files\nodejs\npm.cmd' run build
+- & 'C:\Program Files\nodejs\npm.cmd' test
+- rg -n -F 'from "tone"' src/core/serialization tests/core/serializeProject.test.ts
+- rg -n -F "from 'tone'" src/core/serialization tests/core/serializeProject.test.ts
+- rg -n "src/playback|src/app|src/ui|Blob|URL.createObjectURL|document|window" src/core/serialization tests/core/serializeProject.test.ts
+- rg -n -F 'from "tone"' src/core/serialization
+- rg -n -F "from 'tone'" src/core/serialization
+- rg -n "src/playback|src/app|src/ui|Blob|URL.createObjectURL|document|window" src/core/serialization
 ```
 
 ## 7.2 Last Build Result
 
 ```text
-Not run for T0018A because this ticket changed docs/skills only. Last source build status remains Pass from T0018.
+Pass. Verified with `& 'C:\Program Files\nodejs\npm.cmd' run build` after `npm.cmd run build` failed because `npm.cmd` was not on PATH in this shell.
 ```
 
 ## 7.3 Last Test Result
 
 ```text
-Not run for T0018A because this ticket changed docs/skills only. Last source test status remains Pass from T0018.
+Pass. Verified with `& 'C:\Program Files\nodejs\npm.cmd' test` after `npm.cmd test` failed because `npm.cmd` was not on PATH in this shell.
 ```
 
 ## 7.4 Last Manual Verification Result
 
 ```text
-T0018A scope verification passed. Only `.codex/skills` and documentation files were changed, and no `src/`, `package.json`, `package-lock.json`, build-config, or test implementation files were edited. No browser/audio/manual app verification was required because this ticket made no runtime behavior change.
+T0019 scope verification passed. Build and tests succeeded, generated projects serialized to readable JSON in automated coverage, and source-only isolation searches returned no Tone/playback/app/ui/browser-file matches under `src/core/serialization`. No browser or audio confirmation was required because this ticket added serializer core only.
 ```
 
 ---
@@ -403,7 +434,7 @@ T0018A scope verification passed. Only `.codex/skills` and documentation files w
 Current known issues:
 
 ```text
-No new source implementation issues were introduced by T0018A because it changed docs/skills only. The strengthened workflow now explicitly requires human audio verification for future playback tickets whose acceptance criteria depend on audible behavior, and explicitly calls out stale-callback-after-reload regressions as a playback cleanup check.
+No known issues were introduced by T0019. Validation, load parsing, browser save/download, and invalid-file handling remain intentionally deferred to T0020–T0023.
 ```
 
 See:
@@ -423,7 +454,7 @@ for detailed tracking once implementation begins.
 ```text
 src/core exists: Yes
 Tone.js imported in src/core: No
-Status: Clean. `src/core/theory`, `src/core/templates`, and `src/core/generation` contain pure helper/data modules with no Tone.js, React, DOM, or browser audio imports.
+Status: Clean. `src/core/theory`, `src/core/templates`, `src/core/generation`, and `src/core/serialization` contain pure helper/data modules with no Tone.js, React, DOM, or browser audio imports.
 ```
 
 ## 9.2 Playback Boundary
@@ -438,7 +469,7 @@ Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js
 
 ```text
 .gamecue.json schema implemented: Partially
-Status: Core TypeScript project model is implemented in src/core/model; serialization and save/load behavior are not implemented yet
+Status: Core TypeScript project model and pretty-print serialization are implemented in `src/core/model` and `src/core/serialization`; validation, browser save/load orchestration, and invalid-file handling are not implemented yet
 ```
 
 ---
@@ -472,13 +503,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0019 — Project Serializer.
+Start T0020 — Project Validator.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0019-project-serializer
+gamecue/t0020-project-validator
 ```
 
 Recommended prompt source:
@@ -567,10 +598,10 @@ App shell displays expected placeholder sections.
 
 ```text
 Update Date:
-2026-05-18
+2026-05-19
 
 Ticket completed:
-T0018A — Strengthen Audio Verification and Save/Load Skills
+T0019 — Project Serializer
 
 Branch:
 gamecue/t0018-playback-cleanup-dispose-safety
@@ -579,51 +610,43 @@ Commit:
 Not created yet
 
 Files changed:
-- .codex/skills/gamecue-audio-playback/SKILL.md
-- .codex/skills/gamecue-manual-verification/SKILL.md
-- .codex/skills/gamecue-save-load/SKILL.md
-- docs/GameCue_Starter_Skills_Reference.md
+- src/core/serialization/serializeProject.ts
+- src/core/serialization/index.ts
+- tests/core/serializeProject.test.ts
 - docs/Repo_Current_State.md
-- docs/Codex_Prompt_Playbook.md
-- docs/Manual_Verification_Guide.md
-- AGENTS.md
 
 Commands run:
-- git status --short
-- git diff --name-only
-- Get-Content -Path .codex/skills/gamecue-audio-playback/SKILL.md
-- Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
-- Get-Content -Path .codex/skills/gamecue-save-load/SKILL.md
-- Get-Content -Path docs/GameCue_Starter_Skills_Reference.md
-- Get-Content -Path docs/Repo_Current_State.md
+- npm.cmd run build
+- npm.cmd test
+- & 'C:\Program Files\nodejs\npm.cmd' run build
+- & 'C:\Program Files\nodejs\npm.cmd' test
+- rg -n -F 'from "tone"' src/core/serialization tests/core/serializeProject.test.ts
+- rg -n -F "from 'tone'" src/core/serialization tests/core/serializeProject.test.ts
+- rg -n "src/playback|src/app|src/ui|Blob|URL.createObjectURL|document|window" src/core/serialization tests/core/serializeProject.test.ts
+- rg -n -F 'from "tone"' src/core/serialization
+- rg -n -F "from 'tone'" src/core/serialization
+- rg -n "src/playback|src/app|src/ui|Blob|URL.createObjectURL|document|window" src/core/serialization
 
 Build result:
-Not run by design. T0018A changed docs/skills only.
+Pass using `& 'C:\Program Files\nodejs\npm.cmd' run build` after confirming `npm.cmd` was not on PATH.
 
 Test result:
-Not run by design. T0018A changed docs/skills only.
+Pass using `& 'C:\Program Files\nodejs\npm.cmd' test` after confirming `npm.cmd` was not on PATH.
 
 Manual verification result:
-Pass for ticket scope. Verified that only `.codex/skills` and documentation files changed, with no edits under `src/` and no package/build/test implementation file changes.
+Pass for ticket scope. Automated coverage confirmed generated projects serialize to readable JSON without mutation, preserve schemaVersion/cue/sections/tracks/events/mix on parse-back, and the serializer source stays free of Tone/playback/app/ui/browser-file imports. No browser/audio/manual app verification was required for serializer core.
 
 Known issues added:
 None.
 
 Docs updated:
-- .codex/skills/gamecue-audio-playback/SKILL.md
-- .codex/skills/gamecue-manual-verification/SKILL.md
-- .codex/skills/gamecue-save-load/SKILL.md
-- docs/GameCue_Starter_Skills_Reference.md
 - docs/Repo_Current_State.md
-- docs/Codex_Prompt_Playbook.md
-- docs/Manual_Verification_Guide.md
-- AGENTS.md
 
 Next recommended ticket:
-T0019 — Project Serializer
+T0020 — Project Validator
 
 Notes:
-T0018A intentionally updated the existing playback/manual-verification/save-load skills instead of creating duplicate skill folders. The strengthened guidance now distinguishes build/test checks, headless/browser smoke checks, and human audible confirmation; calls out stale queued callbacks after reload/regenerate as a specific playback regression to verify; adds Windows-safe `npm.cmd` command fallbacks; and tightens `.gamecue.json` serializer-core boundaries so upcoming T0019–T0023 work stays engine-agnostic. No runtime source code changed.
+T0019 intentionally added only serializer core under `src/core/serialization` plus focused tests. It did not add validation, browser save/download behavior, load parsing helpers, app/UI integration, export behavior, or playback changes.
 ```
 
 ---
