@@ -31,10 +31,10 @@ Update this file after each meaningful repo change.
 ## 2.1 Project Status
 
 ```text
-Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, core test runner, project serializer, project validator, and browser save/download for `.gamecue.json` implemented
-Last completed ticket: T0021 — Save .gamecue.json
+Project status: App skeleton, core project model, basic app layout, cue controls UI, music theory helpers, cue templates, chord progression generation, drum pattern generation, bassline generation, chord/pad generation, melody/motif generation, full project generation, playback engine interface, Tone.js instrument factory, Tone.js scheduler, play/stop/loop transport controls, track mute/solo playback controls, playback cleanup/dispose safety hardening, core test runner, project serializer, project validator, browser save/download for `.gamecue.json`, and browser load/validation for saved `.gamecue.json` projects implemented
+Last completed ticket: T0022 — Load .gamecue.json
 Current ticket: None
-Next recommended ticket: T0022 — Load .gamecue.json
+Next recommended ticket: T0023 — Invalid File Error Handling
 Current branch: gamecue/t0018-playback-cleanup-dispose-safety
 Repo initialized: Yes
 ```
@@ -64,8 +64,8 @@ AGENTS.md
 ## 2.3 Current Implementation Status
 
 ```text
-Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, preserved mute/solo overrides across reloads, app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, suppresses unhandled dispose rejections during app unmount, a minimal engine-agnostic `serializeProject(project)` helper in `src/core/serialization` that pretty-prints deterministic `.gamecue.json` output without adding browser, playback, or UI concerns, a runtime `validateProject(value)` helper that validates unknown loaded project data with path-specific errors while keeping the current schema engine-agnostic, and UI-side save/download wiring that serializes the current project, derives a safe lowercase filename, downloads `.gamecue.json` via browser APIs outside `src/core`, and leaves load disabled for T0022
-Docs/workflow status: T0018A strengthened the existing playback, manual verification, and save/load Codex skills plus related workflow docs. T0021 updated `docs/Repo_Current_State.md` to reflect browser save/download implementation and verification results.
+Source code status: Deterministic full-project generation is now implemented by composing the existing chord, drum, bass, chord/pad, and melody generators into a complete JSON-compatible `GameCueProject`, with stable project metadata, shared harmonic alignment across tonal tracks, UI Generate Cue wiring, generated track/event summaries, an engine-agnostic `PlaybackEngine` contract in `src/playback`, an isolated Tone.js playback adapter in `src/playback/tone`, a `TonePlaybackEngine` that maps project events into Tone transport scheduling with loop/BPM control, reload-safe cleanup, partial-load rollback, idempotent disposal guards, a playback-active scheduler gate that suppresses stray post-stop/post-pause callbacks, a per-load token that binds scheduled callbacks to the currently loaded project session, preserved mute/solo overrides across reloads, app-level transport wiring that loads the latest generated project on Play, stops and resets playback, preserves loop state, surfaces simple playback status/errors, keeps per-track mute/solo UI state synchronized with playback before and during transport, suppresses unhandled dispose rejections during app unmount, a minimal engine-agnostic `serializeProject(project)` helper in `src/core/serialization` that pretty-prints deterministic `.gamecue.json` output without adding browser, playback, or UI concerns, a string-only `parseProjectJson(projectText)` helper under `src/core/serialization`, a runtime `validateProject(value)` helper that validates unknown loaded project data with path-specific errors while keeping the current schema engine-agnostic, UI-side save/download wiring that serializes the current project and derives safe lowercase filenames, and load UI wiring that reads selected `.gamecue.json` files in the browser, parses and validates them before applying app state, restores cue settings and track UI state from the loaded project, stops playback before swapping projects, and preserves the current project when load fails
+Docs/workflow status: T0018A strengthened the existing playback, manual verification, and save/load Codex skills plus related workflow docs. T0022 updated `docs/Repo_Current_State.md` to reflect browser load/validation implementation and verification results.
 Vite project created: Yes
 React app created: Yes
 Tone.js installed: Yes
@@ -76,7 +76,7 @@ Music theory helpers created: Yes
 Cue template system created: Yes
 Generation system created: Yes
 Playback system created: Interface, Tone instrument factory, Tone.js scheduler adapter, and transport control wiring
-Save/load created: Serializer core, project validator core, and browser save/download
+Save/load created: Serializer core, string-only JSON parse helper, project validator core, browser save/download, and browser file load/validation
 Export system created: No
 Tests created: Yes
 ```
@@ -291,6 +291,7 @@ gamecue/
       serialization/
         .gitkeep
         index.ts
+        parseProjectJson.ts
         serializeProject.ts
         validateProject.ts
     playback/
@@ -299,6 +300,8 @@ gamecue/
       controls/
       tracks/
       project/
+        loadProjectFile.ts
+        saveProjectFile.ts
       shared/
   tests/
     core/
@@ -307,6 +310,7 @@ gamecue/
       chordProgressions.test.ts
       drumPatterns.test.ts
       melodies.test.ts
+      parseProjectJson.test.ts
       projects.test.ts
       serializeProject.test.ts
       validateProject.test.ts
@@ -314,6 +318,9 @@ gamecue/
       theory.test.ts
     playback/
       PlaybackEngine.test.ts
+    ui/
+      loadProjectFile.test.ts
+      saveProjectFile.test.ts
 ```
 
 ---
@@ -350,6 +357,7 @@ gamecue/
 | T0019 — Project Serializer | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Added an engine-agnostic `serializeProject(project)` helper under `src/core/serialization`, a barrel export, and focused tests for pretty JSON output, round-trip preservation, non-mutation, runtime-key absence, and serializer import isolation |
 | T0020 — Project Validator | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Added an engine-agnostic `validateProject(value)` helper under `src/core/serialization`, path-specific runtime validation for project/cue/sections/tracks/events/mix, a barrel export, and focused tests for valid projects, invalid schema/timing/enum cases, multi-error reporting, non-mutation, and validator import isolation |
 | T0021 — Save .gamecue.json | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Wired `SaveLoadPanel` to the current app project, added a browser-only save helper under `src/ui/project`, downloads serialized projects as safe lowercase `.gamecue.json` filenames, shows minimal save status text, and keeps load disabled for T0022 |
+| T0022 — Load .gamecue.json | Implemented | gamecue/t0018-playback-cleanup-dispose-safety | N/A | Added a string-only JSON parse helper under `src/core/serialization`, browser-only load helpers under `src/ui/project`, wired `SaveLoadPanel` file input plus validation messaging, and added an app-level load callback that stops playback before restoring cue settings, project data, and track mute/solo UI state from valid `.gamecue.json` files |
 | Docs — Windows Codex Verification Guidance | Documentation | Not created | N/A | Added standing Windows/Codex build verification order and raw Node ESM verification cautions to workflow docs and starter skills |
 | T0003A — Document Starter Codex Skills | Documentation | docs/document-starter-skills | N/A | Documents the starter `.codex/skills` files that were added during the T0003 merge |
 
@@ -360,13 +368,13 @@ gamecue/
 ```text
 Ticket: None
 Branch: gamecue/t0018-playback-cleanup-dispose-safety
-Status: Complete for T0021 save/download implementation
+Status: Complete for T0022 load implementation
 ```
 
 ## Active Ticket Notes
 
 ```text
-This branch now includes T0018 engine cleanup hardening, T0018A docs/workflow guardrail updates, T0019 serializer implementation, T0020 validator implementation, and T0021 browser save/download wiring. T0021 keeps `src/core/serialization` free of browser APIs by adding `src/ui/project/saveProjectFile.ts` for `Blob`/`URL.createObjectURL`/temporary anchor behavior, wires `SaveLoadPanel` to the current `project`, derives safe lowercase `.gamecue.json` filenames from project titles, and intentionally leaves load parsing plus invalid-file handling for T0022–T0023.
+This branch now includes T0018 engine cleanup hardening, T0018A docs/workflow guardrail updates, T0019 serializer implementation, T0020 validator implementation, T0021 browser save/download wiring, and T0022 browser load/validation wiring. T0022 keeps `src/core/serialization` free of browser file APIs by adding a string-only `parseProjectJson(projectText)` helper in core while `src/ui/project/loadProjectFile.ts` owns `File.text()` usage, wires `SaveLoadPanel` to validate loaded JSON before calling the app, restores cue settings and track mute/solo UI state from valid project data, stops current playback before applying the loaded project, and preserves the current app state on malformed or invalid files.
 ```
 
 ---
@@ -394,22 +402,24 @@ Update after each ticket.
 - Get-Content -Path .codex/skills/gamecue-manual-verification/SKILL.md
 - Get-Content -Path src/app/App.tsx
 - Get-Content -Path src/ui/project/SaveLoadPanel.tsx
+- Get-Content -Path src/ui/project/saveProjectFile.ts
 - Get-Content -Path src/core/serialization/serializeProject.ts
 - Get-Content -Path src/core/serialization/validateProject.ts
 - Get-Content -Path src/core/serialization/index.ts
 - Get-Content -Path src/core/model/GameCueProject.ts
-- Get-Content -Path src/core/model/createExampleProject.ts
-- Get-Content -Path tests/core/serializeProject.test.ts
-- Get-Content -Path src/app/styles.css
-- Get-Content -Path src/core/model/index.ts
+- Get-Content -Path src/core/model/CueSettings.ts
+- Get-Content -Path src/core/model/Track.ts
+- Get-Content -Path src/core/model/NoteEvent.ts
+- Get-Content -Path src/playback/PlaybackEngine.ts
+- Get-Content -Path src/playback/tone/TonePlaybackEngine.ts
+- Get-Content -Path tests/core/validateProject.test.ts
 - Get-Content -Path tests/ui/saveProjectFile.test.ts
-- git diff -- src/app/App.tsx src/ui/project/SaveLoadPanel.tsx src/ui/project/saveProjectFile.ts src/app/styles.css tests/ui/saveProjectFile.test.ts
+- git diff -- src/app/App.tsx src/ui/project/SaveLoadPanel.tsx src/ui/project/loadProjectFile.ts src/core/serialization/parseProjectJson.ts src/core/serialization/index.ts tests/core/parseProjectJson.test.ts tests/ui/loadProjectFile.test.ts
 - npm.cmd run build
 - & 'C:\Program Files\nodejs\npm.cmd' run build
 - & 'C:\Program Files\nodejs\npm.cmd' test
-- & 'C:\Program Files\nodejs\npm.cmd' run dev -- --host 127.0.0.1
-- rg -n "Blob|URL.createObjectURL|document.createElement|download" src
-- rg -n "Blob|URL.createObjectURL|document|window" src/core/serialization
+- rg -n 'FileReader|<input|type="file"|accept=|Blob|URL.createObjectURL|document|window' src
+- rg -n 'FileReader|Blob|URL.createObjectURL|document|window|\bFile\b' src/core/serialization
 - rg -n -F 'from "tone"' src/core/serialization src/ui/project tests
 - rg -n -F "from 'tone'" src/core/serialization src/ui/project tests
 ```
@@ -429,7 +439,7 @@ Pass. Verified with `& 'C:\Program Files\nodejs\npm.cmd' test`.
 ## 7.4 Last Manual Verification Result
 
 ```text
-T0021 scope verification passed for automated checks. Build and tests succeeded, the new filename-sanitization coverage passed, browser file APIs were confirmed to exist only under `src/ui/project/saveProjectFile.ts`, `src/core/serialization` remained free of `Blob`/`URL`/`document`/`window` usage, and no new Tone imports were introduced in the save UI path. Interactive browser clicking and downloaded-file inspection still require a human manual pass because Codex did not complete an in-browser download flow.
+T0022 scope verification passed for automated checks. Build and tests succeeded, the new parse helper and load helper coverage passed, browser file APIs were confirmed to remain outside `src/core/serialization`, `src/core/serialization` stayed free of `FileReader`/`File`/`Blob`/`URL`/`document`/`window` usage, and no new Tone imports were introduced in the project load UI path. Interactive browser file selection, same-file reload, successful project restore, and invalid-file behavior still require a human manual pass because Codex did not complete an in-browser file-picker workflow.
 ```
 
 ---
@@ -439,7 +449,7 @@ T0021 scope verification passed for automated checks. Build and tests succeeded,
 Current known issues:
 
 ```text
-No known code issues were introduced by T0021. Browser load parsing and invalid-file UI handling remain intentionally deferred to T0022–T0023, and a human browser pass is still recommended to confirm the actual download flow and saved file contents.
+No known code issues were introduced by T0022. Invalid-file UI can still be refined further in T0023, and a human browser pass is still recommended to confirm the full file-picker flow, same-file reload behavior, saved-file round trip, and invalid-file messaging in the running app.
 ```
 
 See:
@@ -474,7 +484,7 @@ Status: Engine-agnostic `PlaybackEngine` interface remains isolated from Tone.js
 
 ```text
 .gamecue.json schema implemented: Partially
-Status: Core TypeScript project model, pretty-print serialization, runtime validation, and browser save/download orchestration are implemented; browser load behavior and invalid-file handling are not implemented yet
+Status: Core TypeScript project model, pretty-print serialization, string-only JSON parsing, runtime validation, browser save/download orchestration, and browser file-load orchestration are implemented; invalid-file handling exists at a basic safe-message level and can be refined further in T0023
 ```
 
 ---
@@ -508,13 +518,13 @@ These skills were added during the T0003 merge. They are accepted as useful star
 # 10. Next Recommended Action
 
 ```text
-Start T0022 — Load .gamecue.json.
+Start T0023 — Invalid File Error Handling.
 ```
 
 Recommended branch:
 
 ```text
-gamecue/t0022-load-project-json
+gamecue/t0023-invalid-file-error-handling
 ```
 
 Recommended prompt source:
@@ -603,10 +613,10 @@ App shell displays expected placeholder sections.
 
 ```text
 Update Date:
-2026-05-19
+2026-05-20
 
 Ticket completed:
-T0021 — Save .gamecue.json
+T0022 — Load .gamecue.json
 
 Branch:
 gamecue/t0018-playback-cleanup-dispose-safety
@@ -616,19 +626,20 @@ Not created yet
 
 Files changed:
 - src/app/App.tsx
-- src/app/styles.css
+- src/core/serialization/parseProjectJson.ts
+- src/core/serialization/index.ts
 - src/ui/project/SaveLoadPanel.tsx
-- src/ui/project/saveProjectFile.ts
-- tests/ui/saveProjectFile.test.ts
+- src/ui/project/loadProjectFile.ts
+- tests/core/parseProjectJson.test.ts
+- tests/ui/loadProjectFile.test.ts
 - docs/Repo_Current_State.md
 
 Commands run:
 - npm.cmd run build
 - & 'C:\Program Files\nodejs\npm.cmd' run build
 - & 'C:\Program Files\nodejs\npm.cmd' test
-- & 'C:\Program Files\nodejs\npm.cmd' run dev -- --host 127.0.0.1
-- rg -n "Blob|URL.createObjectURL|document.createElement|download" src
-- rg -n "Blob|URL.createObjectURL|document|window" src/core/serialization
+- rg -n 'FileReader|<input|type="file"|accept=|Blob|URL.createObjectURL|document|window' src
+- rg -n 'FileReader|Blob|URL.createObjectURL|document|window|\bFile\b' src/core/serialization
 - rg -n -F 'from "tone"' src/core/serialization src/ui/project tests
 - rg -n -F "from 'tone'" src/core/serialization src/ui/project tests
 
@@ -639,7 +650,7 @@ Test result:
 Pass using `& 'C:\Program Files\nodejs\npm.cmd' test`.
 
 Manual verification result:
-Automated verification passed for ticket scope. Save UI wiring builds and tests cleanly, filename sanitization is covered by unit tests, and source searches confirm browser APIs remain outside `src/core/serialization`. Human browser verification of the actual download click, saved file extension, and JSON contents is still pending.
+Automated verification passed for ticket scope. Load UI wiring builds and tests cleanly, parse and validation-message helpers are covered by unit tests, and source searches confirm browser file APIs remain outside `src/core/serialization`. Human browser verification of file selection, successful project restore, same-file reload, playback after load, and invalid-file behavior is still pending.
 
 Known issues added:
 None.
@@ -648,10 +659,10 @@ Docs updated:
 - docs/Repo_Current_State.md
 
 Next recommended ticket:
-T0022 — Load .gamecue.json
+T0023 — Invalid File Error Handling
 
 Notes:
-T0021 intentionally added only browser save/download behavior plus filename sanitization coverage. It did not add browser file input UI, load parsing, invalid-file handling, schema changes, export behavior, package changes, or playback internals changes.
+T0022 intentionally added browser file input/load behavior, string-only JSON parsing, validation before apply, and safe failure handling that preserves the current app state. It did not add schema migration, drag/drop, export behavior, package changes, or playback-engine internal changes.
 ```
 
 ---
