@@ -225,6 +225,27 @@ function App() {
     }
   };
 
+  const handleLoadProject = async (loadedProject: GameCueProject) => {
+    try {
+      if (playbackEngineRef.current !== null) {
+        await playbackEngineRef.current.stop();
+      }
+
+      setCueSettings(loadedProject.cue);
+      setProject(loadedProject);
+      setTrackPlaybackState(createTrackPlaybackStateMap(loadedProject));
+      projectNeedsLoadRef.current = true;
+      setIsPlaying(false);
+      setTransportError(null);
+      setTransportStatus("Ready");
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      setTransportError(errorMessage);
+      setTransportStatus("Error");
+      throw new Error(errorMessage);
+    }
+  };
+
   return (
     <main className="app-shell">
       <header className="panel app-header">
@@ -269,7 +290,7 @@ function App() {
       </section>
 
       <section className="panel project-panel">
-        <SaveLoadPanel project={project} />
+        <SaveLoadPanel project={project} onLoadProject={handleLoadProject} />
       </section>
     </main>
   );
