@@ -338,12 +338,14 @@ textarea {
 }
 
 .transport-feedback,
-.transport-error {
+.transport-error,
+.project-feedback {
   margin: var(--space-4) 0 0;
   font-size: 0.95rem;
 }
 
-.transport-feedback {
+.transport-feedback,
+.project-feedback {
   color: var(--color-text-muted);
 }
 

@@ -269,7 +269,7 @@ function App() {
       </section>
 
       <section className="panel project-panel">
-        <SaveLoadPanel />
+        <SaveLoadPanel project={project} />
       </section>
     </main>
   );
